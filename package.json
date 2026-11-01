@@ -1,13 +1,14 @@
 {
   "name": "makerfox-desktop",
-  "version": "1.0.0",
-  "description": "MakerFox - Calculadora 3D y cat\u00e1logo local",
+  "version": "1.1.1",
+  "description": "MakerFox - Calculadora 3D, catálogo, pedidos y actualizaciones automáticas",
   "main": "main.js",
   "author": "MakerFox",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder --win nsis"
+    "dist": "electron-builder --win nsis",
+    "publish": "electron-builder --win nsis --publish always"
   },
   "devDependencies": {
     "electron": "^35.0.0",
@@ -41,6 +42,17 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "NestorJm21",
+        "repo": "MakerFox-Desktop",
+        "releaseType": "release"
+      }
+    ]
+  },
+  "dependencies": {
+    "electron-updater": "^6.6.2"
   }
 }

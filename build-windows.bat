@@ -1,64 +1,34 @@
 @echo off
 setlocal
-title MakerFox - Generador de instalador
+title MakerFox 1.1.1 - Generador de instalador
 cd /d "%~dp0"
 echo ==========================================
-echo       MAKERFOX - INSTALADOR WINDOWS
+echo       MAKERFOX 1.1.0 - WINDOWS
 echo ==========================================
 echo Carpeta del proyecto:
 cd
-echo.
-
 if not exist "package.json" (
  echo ERROR: No se encontro package.json.
- echo Extrae el ZIP completo y ejecuta este archivo desde la carpeta MakerFox_Windows.
  pause
  exit /b 1
 )
-
 where node >nul 2>nul
-if errorlevel 1 (
- echo ERROR: No se encontro Node.js.
- echo Instala Node.js LTS desde https://nodejs.org/
- pause
- exit /b 1
-)
-
+if errorlevel 1 (echo ERROR: Node.js no esta instalado.& pause & exit /b 1)
 where npm >nul 2>nul
-if errorlevel 1 (
- echo ERROR: No se encontro npm. Reinicia Windows y vuelve a intentar.
- pause
- exit /b 1
-)
-
-echo Version de Node:
+if errorlevel 1 (echo ERROR: npm no esta disponible.& pause & exit /b 1)
+echo Node:
 node --version
-echo Version de npm:
+echo npm:
 call npm --version
+if errorlevel 1 (echo ERROR al comprobar npm.& pause & exit /b 1)
 echo.
 echo Instalando dependencias...
 call npm install
-if errorlevel 1 (
- echo.
- echo ERROR: Fallo la instalacion de dependencias. No se genero el instalador.
- pause
- exit /b 1
-)
-
+if errorlevel 1 (echo ERROR al instalar dependencias.& pause & exit /b 1)
 echo.
-echo Construyendo instalador de MakerFox...
+echo Construyendo MakerFox 1.1.1...
 call npm run dist
-if errorlevel 1 (
- echo.
- echo ERROR: Fallo la compilacion. Revisa los mensajes anteriores.
- pause
- exit /b 1
-)
-
+if errorlevel 1 (echo ERROR al compilar el instalador.& pause & exit /b 1)
 echo.
-echo ==========================================
-echo COMPILACION TERMINADA CORRECTAMENTE
-echo Busca el instalador dentro de la carpeta:
-echo %~dp0dist
-echo ==========================================
+echo COMPILACION TERMINADA. Busca MakerFox Setup 1.1.1.exe en dist.
 pause
