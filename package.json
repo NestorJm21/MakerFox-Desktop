@@ -54,5 +54,9 @@
   },
   "dependencies": {
     "electron-updater": "^6.6.2"
+  },
+  "allowScripts": {
+    "electron@35.7.5": true,
+    "electron-winstaller@5.4.0": true
   }
 }
