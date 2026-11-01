@@ -1,0 +1,46 @@
+{
+  "name": "makerfox-desktop",
+  "version": "1.0.0",
+  "description": "MakerFox - Calculadora 3D y cat\u00e1logo local",
+  "main": "main.js",
+  "author": "MakerFox",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.makerfox.catalog",
+    "productName": "MakerFox",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
