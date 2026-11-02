@@ -6,6 +6,7 @@ const { pathToFileURL } = require('url');
 
 protocol.registerSchemesAsPrivileged([{ scheme:'makerfox', privileges:{standard:true, secure:true, supportFetchAPI:true, corsEnabled:true, stream:true} }]);
 let mainWindow;
+let updateDownloaded = false;
 function sendUpdateStatus(status, message, extra = {}) {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('makerfox:update-status', { status, message, ...extra });
 }
@@ -26,7 +27,7 @@ ipcMain.handle('makerfox:open-model', async (_event,payload)=>{
   return {ok:true};
  }catch(e){return {ok:false,error:e.message||'No se pudo abrir el archivo.'}}
 });
-ipcMain.handle('makerfox:install-update', async ()=>{ if (!app.isPackaged) return { ok:false, message:'La instalación de actualizaciones requiere la versión instalada.' }; autoUpdater.quitAndInstall(false,true); return { ok:true, message:'Instalando actualización...' }; });
+ipcMain.handle('makerfox:install-update', async ()=>{ if (!app.isPackaged) return { ok:false, message:'La instalación de actualizaciones requiere la versión instalada.' }; if (!updateDownloaded) return { ok:false, message:'La actualización todavía no termina de descargarse.' }; sendUpdateStatus('installing','Preparando instalación. MakerFox se cerrará y volverá a abrir automáticamente...'); autoUpdater.quitAndInstall(false,true); return { ok:true, message:'Instalando actualización...' }; });
 ipcMain.handle('makerfox:check-updates', async ()=>{
  if (!app.isPackaged) return { ok:false, message:'La búsqueda de actualizaciones funciona en la versión instalada, no desde el modo de desarrollo.' };
  try { await autoUpdater.checkForUpdates(); return { ok:true, message:'Buscando actualizaciones...' }; }
@@ -37,8 +38,8 @@ autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.on('checking-for-update',()=>sendUpdateStatus('checking','Buscando actualizaciones...'));
 autoUpdater.on('update-available',info=>sendUpdateStatus('available',`Nueva versión ${info.version} encontrada. Se está descargando...`,{version:info.version}));
 autoUpdater.on('update-not-available',()=>sendUpdateStatus('current','MakerFox está actualizado.'));
-autoUpdater.on('download-progress',p=>sendUpdateStatus('downloading',`Descargando actualización: ${Math.round(p.percent)}%`,{percent:Math.round(p.percent)}));
-autoUpdater.on('update-downloaded',info=>sendUpdateStatus('downloaded',`La versión ${info.version} se descargó correctamente. Pulsa “Instalar y reiniciar” para aplicar la actualización.`,{version:info.version}));
+autoUpdater.on('download-progress',p=>sendUpdateStatus('downloading',`Descargando actualización: ${Math.round(p.percent)}%`,{percent:Math.round(p.percent),transferred:p.transferred,total:p.total,bytesPerSecond:p.bytesPerSecond}));
+autoUpdater.on('update-downloaded',info=>{ updateDownloaded=true; sendUpdateStatus('downloaded',`La versión ${info.version} está lista. Pulsa “Instalar y reiniciar”; MakerFox se cerrará y abrirá automáticamente.`,{version:info.version,percent:100}); });
 autoUpdater.on('error',e=>sendUpdateStatus('error',`Error al actualizar: ${e.message || 'error desconocido'}`));
 app.whenReady().then(()=>{
  protocol.handle('makerfox',request=>{
