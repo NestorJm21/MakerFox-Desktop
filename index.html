@@ -272,6 +272,27 @@ let cloudClient=null,cloudUser=null,cloudChannel=null,cloudBusy=false;
 function cloudMsg(message,status){if($('cloudMessage'))$('cloudMessage').textContent=message;if($('cloudStatus'))$('cloudStatus').textContent=status||'Conectado'}
 function initCloudClient(){if(!window.supabase?.createClient){cloudMsg('No se pudo cargar la conexión. Comprueba internet y reinicia MakerFox.','Sin conexión');return false}if(!cloudClient)cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});return true}
 async function cloudWrite(o){if(!cloudClient||!cloudUser)return;const row={id:String(o.id),data:o,updated_at:o.updated||new Date().toISOString(),deleted_at:o._deleted?(o.updated||new Date().toISOString()):null};const {error}=await cloudClient.from('orders').upsert(row,{onConflict:'id'});if(error)throw error}
+async function cloudWriteProduct(p){
+ if(!cloudClient||!cloudUser)return;
+ const safe={...p};delete safe.photo;delete safe.model;
+ const updated=safe.updated||safe.created||new Date().toISOString();
+ const {error}=await cloudClient.from('products').upsert({id:String(p.id),data:safe,updated_at:updated,deleted_at:null},{onConflict:'id'});
+ if(error)throw error;
+}
+async function cloudSyncProducts(){
+ const {data:remote,error}=await cloudClient.from('products').select('id,data,updated_at,deleted_at');if(error)throw error;
+ let local=await all('products');const byId=new Map(local.map(p=>[String(p.id),p]));
+ for(const row of remote||[]){
+  if(row.deleted_at)continue;
+  const rp=row.data;if(!rp)continue;const found=byId.get(String(row.id));
+  if(!found){await put('products',{...rp,photo:null,model:null});continue}
+  const localTime=new Date(found.updated||found.created||0).getTime(),remoteTime=new Date(row.updated_at||rp.updated||rp.created||0).getTime();
+  if(remoteTime>localTime)await put('products',{...rp,photo:found.photo||null,model:found.model||null});
+ }
+ local=await all('products');const remoteById=new Map((remote||[]).map(r=>[String(r.id),r]));
+ for(const p of local){const rr=remoteById.get(String(p.id));const localTime=new Date(p.updated||p.created||0).getTime(),remoteTime=new Date(rr?.updated_at||rr?.data?.updated||rr?.data?.created||0).getTime();if(!rr||localTime>remoteTime)await cloudWriteProduct(p)}
+ products=await all('products');$('count').textContent=products.length;refreshProductSelect();renderProducts();
+}
 async function cloudSyncNow(){
  if(!cloudClient||!cloudUser||cloudBusy||!navigator.onLine)return;
  cloudBusy=true;try{
@@ -284,7 +305,8 @@ async function cloudSyncNow(){
    else if(new Date(found.updated||0)>new Date(row.updated_at||0)){await cloudWrite(found)}
   }
   local=await all('orders');for(const o of local){const remoteRow=(remote||[]).find(x=>String(x.id)===String(o.id));if(!remoteRow||new Date(o.updated||0)>new Date(remoteRow.updated_at||0))await cloudWrite(o)}
-  orders=await all('orders');renderOrders();cloudMsg('Pedidos sincronizados correctamente.','En línea');
+  await cloudSyncProducts();
+  orders=await all('orders');renderOrders();cloudMsg('Pedidos y catálogo sincronizados correctamente.','En línea');
  }catch(e){cloudMsg('No se pudo sincronizar: '+(e.message||e),'Error')}finally{cloudBusy=false}
 }
 async function cloudLogin(){
