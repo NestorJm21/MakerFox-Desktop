@@ -175,7 +175,7 @@ button:hover{transform:translateY(-1px)}
 
 <section id="orders" class="page">
 <div class="card"><div class="orderhead"><div><h3>Gestión de pedidos</h3><div class="muted small">Registra clientes, pagos, entregas y prioridades.</div></div><button class="primary" id="newOrder">+ Nuevo pedido</button></div>
-<div class="card" style="margin:14px 0;border-color:#46515f"><h3>Sincronización privada</h3><div class="fields"><div><label>Correo de acceso</label><input id="cloudEmail" type="email" autocomplete="username" placeholder="Tu correo de Supabase"></div><div><label>Contraseña</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Contraseña"></div></div><div class="actions"><button class="primary" id="cloudLogin">Conectar cuenta</button><button id="cloudLogout">Cerrar sesión</button><span class="tag" id="cloudStatus">Sin conectar</span></div><div class="notice" id="cloudMessage">Los pedidos se guardan localmente. Al iniciar sesión se sincronizarán con la nube.</div></div><div class="stats" style="margin-top:12px"><div class="stat"><span class="muted small">Activos</span><strong id="activeOrders">0</strong></div><div class="stat"><span class="muted small">Por cobrar</span><strong id="toCollect">$0</strong></div><div class="stat"><span class="muted small">Entregados</span><strong id="deliveredCount">0</strong></div></div>
+<div class="card" style="margin:14px 0;border-color:#46515f"><h3>Sincronización privada</h3><div class="fields"><div><label>Correo de acceso</label><input id="cloudEmail" type="email" autocomplete="username" placeholder="Tu correo de Supabase"></div><div><label>Contraseña</label><input id="cloudPassword" type="password" autocomplete="current-password" placeholder="Contraseña"></div></div><div class="actions"><button class="primary" id="cloudLogin">Conectar cuenta</button><button id="cloudSync">Sincronizar ahora</button><button id="cloudLogout">Cerrar sesión</button><span class="tag" id="cloudStatus">Sin conectar</span></div><div class="notice" id="cloudMessage">Los pedidos se guardan localmente. Al iniciar sesión se sincronizarán con la nube.</div></div><div class="stats" style="margin-top:12px"><div class="stat"><span class="muted small">Activos</span><strong id="activeOrders">0</strong></div><div class="stat"><span class="muted small">Por cobrar</span><strong id="toCollect">$0</strong></div><div class="stat"><span class="muted small">Entregados</span><strong id="deliveredCount">0</strong></div></div>
 <div class="subtabs"><button class="active" data-orderview="active">Pedidos activos</button><button data-orderview="delivered">Ya entregados</button></div>
 <div id="orderForm" class="card hidden" style="margin-top:12px">
 <h3 id="orderFormTitle">Nuevo pedido</h3><div class="fields">
@@ -330,6 +330,7 @@ async function cloudLogin(){
 }
 async function cloudLogout(){if(cloudChannel&&cloudClient)await cloudClient.removeChannel(cloudChannel);cloudChannel=null;if(cloudClient)await cloudClient.auth.signOut();cloudUser=null;cloudMsg('Sesión cerrada. Los pedidos siguen guardados en este equipo.','Sin conectar')}
 if($('cloudLogin'))$('cloudLogin').onclick=cloudLogin;
+if($('cloudSync'))$('cloudSync').onclick=()=>cloudSyncNow();
 if($('cloudLogout'))$('cloudLogout').onclick=cloudLogout;
 window.addEventListener('online',()=>cloudSyncNow());
 
