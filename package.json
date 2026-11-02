@@ -1,6 +1,6 @@
 {
   "name": "makerfox-desktop",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "MakerFox - Calculadora 3D, catálogo, pedidos y actualizaciones automáticas",
   "main": "main.js",
   "author": "MakerFox",
