@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MakerFox 1.2.5</title>
+<title>MakerFox 1.2.6</title>
 <style>
 :root{color-scheme:dark;--bg:#101114;--panel:#181a1f;--panel2:#20232a;--line:#30343d;--text:#f4f4f5;--muted:#a1a1aa;--red:#e3262e;--gold:#f2b705}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Segoe UI,Arial,sans-serif}
@@ -19,7 +19,7 @@ input,select,textarea{width:100%;background:#111318;color:var(--text);border:1px
 @media(max-width:850px){.grid{grid-template-columns:1fr}.wrap{padding:12px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.fields{grid-template-columns:1fr}header{padding:14px}.stats{grid-template-columns:repeat(2,1fr)}.product-grid{grid-template-columns:1fr}}.product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:14px}.product-grid .product{margin:0}.product-grid .product img,.product-grid .product>.product-image{height:210px}.settings-section{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
 @media(max-width:850px){.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){.product-grid{grid-template-columns:1fr}}
 
-/* MakerFox 1.2.5 · visual refresh */
+/* MakerFox 1.2.6 · visual refresh */
 :root{--bg:#0b0c0f;--panel:#15171c;--panel2:#1d2027;--line:#2b303a;--text:#f5f5f6;--muted:#a0a5b0;--red:#e3262e;--red2:#ff454d;--gold:#f2b705;--shadow:0 12px 32px rgba(0,0,0,.22)}
 body{background:radial-gradient(ellipse at 50% -18%,rgba(227,38,46,.13),transparent 42%),var(--bg);font-family:Inter,"Segoe UI",Arial,sans-serif;letter-spacing:.08px}
 header{position:relative;padding:22px clamp(18px,3vw,42px);background:rgba(17,19,24,.94);border-bottom:1px solid #30343d;box-shadow:0 5px 24px rgba(0,0,0,.18)}
@@ -284,7 +284,7 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 .appearance-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 @media(max-width:650px){.appearance-preview{grid-template-columns:1fr}}
 </style></head><body>
-<header><div class="topbar-title"><div class="eyebrow">MAKERFOX WORKSPACE</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">Desktop · v1.2.5</span></header>
+<header><div class="topbar-title"><div class="eyebrow">MAKERFOX WORKSPACE</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">Desktop · v1.2.6</span></header>
 <main class="wrap">
 <nav id="sideNav" aria-label="Navegación principal">
 <div class="sidebar-brand"><img src="assets/MakerFox-logo.png" alt="MakerFox" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="sidebar-fallback">MF</div><div class="sidebar-brand-name">MAKER<span>FOX</span></div></div>
@@ -299,7 +299,7 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 <button data-page="appearance" title="Apariencia"><span class="nav-icon">✦</span><span class="nav-label">Apariencia</span></button>
 <button data-page="backup" title="Respaldo"><span class="nav-icon">↥</span><span class="nav-label">Respaldo</span></button>
 <button data-page="updates" title="Actualizador"><span class="nav-icon">⟳</span><span class="nav-label">Actualizador</span></button>
-<div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox Desktop · 1.2.5</span></div>
+<div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox Desktop · 1.2.6</span></div>
 </nav>
 <section id="calc" class="page active">
 <div class="grid"><div class="stack">
@@ -393,7 +393,7 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 <div class="actions"><button class="primary" id="resetAppearance">Restablecer apariencia</button><span id="appearanceMessage" class="notice" aria-live="polite"></span></div>
 </div>
 </section>
-<section id="updates" class="page"><div class="card"><h3>Actualizador de MakerFox</h3><div class="tag">Versión instalada: <span id="installedVersion">1.2.5</span></div><p class="notice">MakerFox comprueba si hay una versión nueva publicada y la descarga automáticamente. Puedes seguir viendo el avance aquí. Cuando llegue al 100%, pulsa “Instalar y reiniciar”; la aplicación se cerrará y volverá a abrir sola. Tus datos locales se conservan.</p><button id="checkUpdates">Buscar actualizaciones</button> <button id="installUpdate" class="primary" hidden>Instalar y reiniciar</button><div id="updateProgressWrap" hidden style="margin-top:16px"><div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:7px"><b id="updateProgressLabel">Descargando actualización</b><b id="updatePercent">0%</b></div><div style="height:12px;background:#292e37;border:1px solid #3a414e;border-radius:20px;overflow:hidden"><div id="updateProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#e3262e,#f2b705);border-radius:20px;transition:width .2s"></div></div><p id="updateTransfer" class="notice"></p></div><p id="updateMessage" class="notice">La búsqueda automática se realiza al iniciar MakerFox.</p></div></section>
+<section id="updates" class="page"><div class="card"><h3>Actualizador de MakerFox</h3><div class="tag">Versión instalada: <span id="installedVersion">1.2.6</span></div><p class="notice">MakerFox comprueba si hay una versión nueva publicada y la descarga automáticamente. Puedes seguir viendo el avance aquí. Cuando llegue al 100%, pulsa “Instalar y reiniciar”; la aplicación se cerrará y volverá a abrir sola. Tus datos locales se conservan.</p><button id="checkUpdates">Buscar actualizaciones</button> <button id="installUpdate" class="primary" hidden>Instalar y reiniciar</button><div id="updateProgressWrap" hidden style="margin-top:16px"><div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:7px"><b id="updateProgressLabel">Descargando actualización</b><b id="updatePercent">0%</b></div><div style="height:12px;background:#292e37;border:1px solid #3a414e;border-radius:20px;overflow:hidden"><div id="updateProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#e3262e,#f2b705);border-radius:20px;transition:width .2s"></div></div><p id="updateTransfer" class="notice"></p></div><p id="updateMessage" class="notice">La búsqueda automática se realiza al iniciar MakerFox.</p></div></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
