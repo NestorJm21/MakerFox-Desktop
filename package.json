@@ -53,6 +53,7 @@
     ]
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "electron-updater": "^6.6.2"
   },
   "allowScripts": {
