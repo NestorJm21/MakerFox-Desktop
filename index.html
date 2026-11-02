@@ -271,7 +271,7 @@ const SUPABASE_URL='https://mmbblrxbwmxnwcjocjjn.supabase.co',SUPABASE_KEY='sb_p
 let cloudClient=null,cloudUser=null,cloudChannel=null,cloudBusy=false;
 function cloudMsg(message,status){if($('cloudMessage'))$('cloudMessage').textContent=message;if($('cloudStatus'))$('cloudStatus').textContent=status||'Conectado'}
 function initCloudClient(){if(!window.supabase?.createClient){cloudMsg('No se pudo cargar la conexión. Comprueba internet y reinicia MakerFox.','Sin conexión');return false}if(!cloudClient)cloudClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});return true}
-async function cloudWrite(o){if(!cloudClient||!cloudUser||o._deleted)return;const row={id:String(o.id),data:o,updated_at:o.updated||new Date().toISOString(),deleted_at:null};const {error}=await cloudClient.from('orders').upsert(row,{onConflict:'id'});if(error)throw error}
+async function cloudWrite(o){if(!cloudClient||!cloudUser)return;const row={id:String(o.id),data:o,updated_at:o.updated||new Date().toISOString(),deleted_at:o._deleted?(o.updated||new Date().toISOString()):null};const {error}=await cloudClient.from('orders').upsert(row,{onConflict:'id'});if(error)throw error}
 async function cloudSyncNow(){
  if(!cloudClient||!cloudUser||cloudBusy||!navigator.onLine)return;
  cloudBusy=true;try{
@@ -283,7 +283,7 @@ async function cloudSyncNow(){
    if(!found||new Date(row.updated_at||remoteOrder.updated||0)>new Date(found.updated||0)){await put('orders',remoteOrder)}
    else if(new Date(found.updated||0)>new Date(row.updated_at||0)){await cloudWrite(found)}
   }
-  local=await all('orders');for(const o of local){if(o._deleted)continue;if(!(remote||[]).some(x=>String(x.id)===String(o.id)))await cloudWrite(o)}
+  local=await all('orders');for(const o of local){const remoteRow=(remote||[]).find(x=>String(x.id)===String(o.id));if(!remoteRow||new Date(o.updated||0)>new Date(remoteRow.updated_at||0))await cloudWrite(o)}
   orders=await all('orders');renderOrders();cloudMsg('Pedidos sincronizados correctamente.','En línea');
  }catch(e){cloudMsg('No se pudo sincronizar: '+(e.message||e),'Error')}finally{cloudBusy=false}
 }
