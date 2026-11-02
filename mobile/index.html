@@ -13,10 +13,10 @@
 <div id="orders"></div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const URL='https://mmbblrxbwmxncwjcojjn.supabase.co', KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
+const SUPABASE_URL='https://mmbblrxbwmxncwjcojjn.supabase.co', KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
 const $=id=>document.getElementById(id);let sb,user,channel;
 function msg(id,s){$(id).textContent=s}
-function getClient(){if(sb)return sb;if(!window.supabase?.createClient)throw new Error('No se pudo cargar la librería de conexión. Abre la página en Chrome y vuelve a intentarlo.');sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});return sb}
+function getClient(){if(sb)return sb;if(!window.supabase?.createClient)throw new Error('No se pudo cargar la librería de conexión. Abre la página en Chrome y vuelve a intentarlo.');sb=window.supabase.createClient(SUPABASE_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});return sb}
 function money(n){return new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(Number(n)||0)}
 function showApp(u){user=u;$('login').classList.add('hidden');$('app').classList.remove('hidden');$('who').textContent=u.email;load()}
 async function load(){msg('status','Sincronizando pedidos…');const {data,error}=await sb.from('orders').select('*').is('deleted_at',null).order('updated_at',{ascending:false});if(error){msg('status','Error: '+error.message);return}render(data||[]);msg('status','En línea · '+data.length+' pedidos');}
