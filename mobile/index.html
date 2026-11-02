@@ -13,7 +13,7 @@
 <div id="orders"></div></section></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const URL='https://mmbblrxbwmxnwcjocjjn.supabase.co', KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
+const URL='https://mmbblrxbwmxncwjcojjn.supabase.co', KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
 const $=id=>document.getElementById(id);let sb,user,channel;
 function msg(id,s){$(id).textContent=s}
 function getClient(){if(sb)return sb;if(!window.supabase?.createClient)throw new Error('No se pudo cargar la librería de conexión. Abre la página en Chrome y vuelve a intentarlo.');sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});return sb}
