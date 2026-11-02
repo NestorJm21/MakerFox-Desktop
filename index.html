@@ -152,7 +152,9 @@ body:after{
  background:repeating-linear-gradient(to bottom,transparent 0px,rgba(255,255,255,.035) 1px,transparent 2px,transparent 5px);
  mix-blend-mode:screen;
 }
-header,main.wrap,nav#sideNav{position:relative;z-index:1}
+header,main.wrap{position:relative;z-index:1}
+/* Keep the workspace sidebar fixed; the ambient layer must not override its layout positioning. */
+nav#sideNav{position:fixed!important;inset:0 auto 0 0;z-index:20}
 header{
  background:linear-gradient(90deg,rgba(16,20,31,.97),rgba(18,15,25,.94))!important;
  border-bottom:1px solid rgba(255,75,92,.24)!important;
