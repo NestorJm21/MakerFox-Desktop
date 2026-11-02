@@ -10,7 +10,7 @@ function sendUpdateStatus(status, message, extra = {}) {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('makerfox:update-status', { status, message, ...extra });
 }
 function createWindow(){
- mainWindow = new BrowserWindow({width:1450,height:940,minWidth:900,minHeight:650,backgroundColor:'#101114',title:'MakerFox 1.2.1',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+ mainWindow = new BrowserWindow({width:1450,height:940,minWidth:900,minHeight:650,backgroundColor:'#101114',title:'MakerFox 1.2.3',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
  mainWindow.loadURL('makerfox://app/index.html');
  mainWindow.on('closed',()=>{mainWindow=null;});
 }
@@ -38,7 +38,7 @@ autoUpdater.on('checking-for-update',()=>sendUpdateStatus('checking','Buscando a
 autoUpdater.on('update-available',info=>sendUpdateStatus('available',`Nueva versión ${info.version} encontrada. Se está descargando...`,{version:info.version}));
 autoUpdater.on('update-not-available',()=>sendUpdateStatus('current','MakerFox está actualizado.'));
 autoUpdater.on('download-progress',p=>sendUpdateStatus('downloading',`Descargando actualización: ${Math.round(p.percent)}%`,{percent:Math.round(p.percent)}));
-autoUpdater.on('update-downloaded',info=>sendUpdateStatus('downloaded',`La versión ${info.version} está lista. Cierra y vuelve a abrir MakerFox para instalarla.`,{version:info.version}));
+autoUpdater.on('update-downloaded',info=>sendUpdateStatus('downloaded',`La versión ${info.version} se descargó correctamente. Pulsa “Instalar y reiniciar” para aplicar la actualización.`,{version:info.version}));
 autoUpdater.on('error',e=>sendUpdateStatus('error',`Error al actualizar: ${e.message || 'error desconocido'}`));
 app.whenReady().then(()=>{
  protocol.handle('makerfox',request=>{
