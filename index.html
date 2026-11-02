@@ -80,11 +80,70 @@ button.active,.primary{background:linear-gradient(135deg,#ed3038,#bd1e27);border
 .placeholder-mark{width:56px;height:56px;display:grid;place-items:center;border:1px solid rgba(227,38,46,.55);border-radius:17px;background:rgba(227,38,46,.12);color:#ff555d;font-weight:900;font-size:19px;letter-spacing:1px}
 .placeholder-title{font-size:11px;font-weight:900;letter-spacing:2px;color:#e4e6eb}
 .placeholder-caption{font-size:9px;letter-spacing:1.5px;color:#777f8d}
+
+/* MakerFox workspace: collapsible left navigation and smoother surfaces */
+:root{--bg:#0b0d11;--panel:#151920;--panel2:#1b2028;--line:#2a313d;--muted:#929baa;--accent:#f04432;--accent2:#ff7a24}
+body{font-family:Inter,"Segoe UI",Arial,sans-serif;background:radial-gradient(ellipse at 80% -10%,rgba(240,68,50,.09),transparent 38%),#0b0d11;color:#edf0f4;overflow-x:hidden}
+header{height:72px;margin-left:248px;padding:0 30px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,16,21,.86);border-bottom:1px solid rgba(255,255,255,.055);box-shadow:none;backdrop-filter:blur(18px)}
+header:after{display:none}
+.topbar-title .eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#f16a4b}
+.topbar-title .small{margin-top:4px;font-size:12px;color:#a5adba}
+main.wrap{max-width:none;margin:0 0 0 248px;padding:24px 30px 38px;transition:margin-left .28s cubic-bezier(.2,.8,.2,1)}
+nav#sideNav{position:fixed;z-index:20;inset:0 auto 0 0;width:248px;margin:0;padding:20px 14px 14px;display:flex;flex-direction:column;align-items:stretch;gap:6px;border:0;border-right:1px solid rgba(255,255,255,.07);border-radius:0;background:linear-gradient(180deg,#141820 0%,#101319 100%);box-shadow:12px 0 38px rgba(0,0,0,.18);backdrop-filter:blur(20px);transition:width .28s cubic-bezier(.2,.8,.2,1)}
+.sidebar-brand{height:142px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:2px 0 14px;border-bottom:1px solid rgba(255,255,255,.07);margin-bottom:10px;overflow:hidden}
+.sidebar-brand img{width:88px;height:88px;object-fit:contain;border-radius:50%;filter:drop-shadow(0 5px 15px rgba(255,83,25,.12))}
+.sidebar-brand-name{font-size:17px;letter-spacing:1.5px;font-weight:900;color:#f5f5f5;white-space:nowrap}
+.sidebar-brand-name span{color:#ff563d}
+.sidebar-fallback{display:none;width:50px;height:50px;place-items:center;border-radius:15px;background:linear-gradient(135deg,#ff7a24,#e52e32);font-weight:900;color:#fff}
+nav#sideNav .nav-group-label{padding:12px 12px 5px;color:#727c8b;font-size:9px;font-weight:800;letter-spacing:1.45px;white-space:nowrap;overflow:hidden}
+nav#sideNav button{width:100%;min-height:43px;display:flex;align-items:center;justify-content:flex-start;gap:13px;padding:0 12px;border:1px solid transparent;border-radius:10px;background:transparent;color:#aab2bf;font-size:12px;font-weight:650;text-align:left;white-space:nowrap;transform:none;box-shadow:none}
+nav#sideNav button:hover{background:#202630;border-color:#2d3541;color:#fff;transform:translateX(2px)}
+nav#sideNav button.active{background:linear-gradient(105deg,rgba(240,68,50,.2),rgba(240,68,50,.07));border-color:rgba(240,91,67,.28);color:#ff8069;box-shadow:inset 3px 0 #f04432}
+nav#sideNav .nav-icon{width:20px;min-width:20px;text-align:center;font-size:17px;color:inherit}
+nav#sideNav .nav-label{overflow:hidden;text-overflow:ellipsis}
+nav#sideNav .nav-count{margin-left:auto;min-width:20px;padding:3px 6px;text-align:center;border-radius:20px;background:#292f39;color:#c5ccd6;font-size:10px}
+nav#sideNav .sidebar-toggle{margin:2px 0 8px;color:#9ca6b5;background:#191e26;border-color:#2b323e}
+nav#sideNav .toggle-glyph{width:20px;min-width:20px;text-align:center;font-size:20px;line-height:1}
+nav#sideNav .nav-bottom-label{margin-top:14px}
+nav#sideNav .sidebar-footer{margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:9px;color:#778191;font-size:10px;white-space:nowrap;overflow:hidden}
+nav#sideNav .status-dot{width:7px;height:7px;min-width:7px;border-radius:50%;background:#54c78a;box-shadow:0 0 10px rgba(84,199,138,.4)}
+body.nav-collapsed header{margin-left:78px}
+body.nav-collapsed main.wrap{margin-left:78px}
+body.nav-collapsed nav#sideNav{width:78px;padding-left:11px;padding-right:11px}
+body.nav-collapsed .sidebar-brand{height:94px}
+body.nav-collapsed .sidebar-brand img{width:48px;height:48px}
+body.nav-collapsed .sidebar-brand-name,body.nav-collapsed nav#sideNav .nav-label,body.nav-collapsed nav#sideNav .nav-group-label{display:none}
+body.nav-collapsed nav#sideNav button{justify-content:center;padding:0}
+body.nav-collapsed nav#sideNav .nav-count{position:absolute;margin:0 0 25px 27px;min-width:16px;padding:2px 4px;font-size:9px}
+body.nav-collapsed nav#sideNav .sidebar-footer{justify-content:center;padding-left:0;padding-right:0}
+body.nav-collapsed nav#sideNav .toggle-glyph{transform:rotate(180deg)}
+.card,.product,.order{border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12);transition:border-color .2s ease,background .2s ease,box-shadow .2s ease,transform .2s ease}
+.card{background:linear-gradient(145deg,rgba(25,30,38,.94),rgba(19,23,30,.96));border-color:#2b3340}
+.card:hover{border-color:#3a4554}
+input,select,textarea{border-radius:10px;background:#10141a;border-color:#303947}
+button{border-radius:10px;transition:all .2s cubic-bezier(.2,.8,.2,1)}
+button:hover{transform:translateY(-1px)}
+.page.active{animation:pageIn .26s ease-out}
+@media(max-width:900px){header{margin-left:78px;padding:0 18px}main.wrap{margin-left:78px;padding:18px}nav#sideNav{width:78px;padding-left:11px;padding-right:11px}.sidebar-brand{height:94px}.sidebar-brand img{width:48px;height:48px}.sidebar-brand-name,nav#sideNav .nav-label,nav#sideNav .nav-group-label{display:none}nav#sideNav button{justify-content:center;padding:0}nav#sideNav .nav-count{position:absolute;margin:0 0 25px 27px;min-width:16px;padding:2px 4px;font-size:9px}}
+@media(max-width:560px){header{height:62px;margin-left:68px}main.wrap{margin-left:68px;padding:12px}nav#sideNav{width:68px;padding-left:8px;padding-right:8px}nav#sideNav .nav-icon{font-size:16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
 </style></head><body>
-<header><div><div class="brand">MAKER<span>FOX</span></div><div class="muted small">Calculadora 3D · Catálogo · Pedidos</div></div><span class="tag">Desktop · v1.2.0</span></header>
+<header><div class="topbar-title"><div class="eyebrow">MAKERFOX WORKSPACE</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">Desktop · v1.2.0</span></header>
 <main class="wrap">
-<nav>
-<button class="active" data-page="calc">Calculadora</button><button data-page="catalog">Catálogo <span id="count">0</span></button><button data-page="orders">Pedidos <span id="orderCount">0</span></button><button data-page="library">Modelos 3D</button><button data-page="backup">Respaldo</button><button data-page="settings">Costos base</button><button data-page="updates">Actualizador</button>
+<nav id="sideNav" aria-label="Navegación principal">
+<div class="sidebar-brand"><img src="assets/makerfox-logo.png" alt="MakerFox" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="sidebar-fallback">MF</div><div class="sidebar-brand-name">MAKER<span>FOX</span></div></div>
+<button id="sidebarToggle" class="sidebar-toggle" type="button" title="Contraer menú" aria-label="Contraer menú"><span class="toggle-glyph">‹</span><span class="nav-label">Contraer menú</span></button>
+<div class="nav-group-label">ESPACIO DE TRABAJO</div>
+<button class="active" data-page="calc" title="Calculadora"><span class="nav-icon">◈</span><span class="nav-label">Calculadora</span></button>
+<button data-page="catalog" title="Catálogo"><span class="nav-icon">▦</span><span class="nav-label">Catálogo</span><span id="count" class="nav-count">0</span></button>
+<button data-page="orders" title="Pedidos"><span class="nav-icon">▤</span><span class="nav-label">Pedidos</span><span id="orderCount" class="nav-count">0</span></button>
+<button data-page="library" title="Modelos 3D"><span class="nav-icon">⬡</span><span class="nav-label">Modelos 3D</span></button>
+<div class="nav-group-label nav-bottom-label">ADMINISTRACIÓN</div>
+<button data-page="settings" title="Costos base"><span class="nav-icon">⚙</span><span class="nav-label">Costos base</span></button>
+<button data-page="backup" title="Respaldo"><span class="nav-icon">↥</span><span class="nav-label">Respaldo</span></button>
+<button data-page="updates" title="Actualizador"><span class="nav-icon">⟳</span><span class="nav-label">Actualizador</span></button>
+<div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox Desktop · 1.2.0</span></div>
 </nav>
 <section id="calc" class="page active">
 <div class="grid"><div class="stack">
@@ -160,6 +219,7 @@ function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open('MakerFoxDes
 const all=s=>req(db.transaction(s,'readonly').objectStore(s).getAll()),put=(s,v)=>req(db.transaction(s,'readwrite').objectStore(s).put(v)),del=(s,id)=>req(db.transaction(s,'readwrite').objectStore(s).delete(id));
 function page(name){document.querySelectorAll('nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===name));if(name==='catalog')renderProducts();if(name==='library')renderModels();if(name==='orders')renderOrders();if(name==='backup')backupStats()}
 document.querySelectorAll('nav [data-page]').forEach(b=>b.onclick=()=>page(b.dataset.page));
+document.getElementById('sidebarToggle').addEventListener('click',()=>{document.body.classList.toggle('nav-collapsed');const c=document.body.classList.contains('nav-collapsed');const b=document.getElementById('sidebarToggle');b.title=c?'Expandir menú':'Contraer menú';b.setAttribute('aria-label',b.title);b.querySelector('.nav-label').textContent=c?'Expandir menú':'Contraer menú'});
 function selectedFilament(){return (settings.filaments||[]).find(f=>f.id===$('filamentSelect').value)||settings.filaments?.[0]||{name:'PLA Basic',price:settings.filament||279,note:''}}
 function readCost(){let mode=$('calcMode').value,qty=mode==='batch'?Math.max(2,Math.floor(+$('batchQty').value||2)):1,time=Math.max(0,(+$('hours').value||0)+(+$('minutes').value||0)/60),grams=+$('grams').value||0,assembly=+$('assembly').value||0,work=+$('work').value||0,extras=+$('extras').value||0,filament=selectedFilament();
  let totalGrams=mode==='batch'?grams:grams*qty,totalTime=time,material=totalGrams*filament.price/1000,electric=totalTime*settings.watts/1000*settings.electric,wear=totalTime*settings.parts/settings.life,labor=((assembly+work)/60)*settings.labor,extrasTotal=extras;
