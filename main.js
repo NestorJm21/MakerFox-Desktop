@@ -26,13 +26,14 @@ ipcMain.handle('makerfox:open-model', async (_event,payload)=>{
   return {ok:true};
  }catch(e){return {ok:false,error:e.message||'No se pudo abrir el archivo.'}}
 });
+ipcMain.handle('makerfox:install-update', async ()=>{ if (!app.isPackaged) return { ok:false, message:'La instalación de actualizaciones requiere la versión instalada.' }; autoUpdater.quitAndInstall(false,true); return { ok:true, message:'Instalando actualización...' }; });
 ipcMain.handle('makerfox:check-updates', async ()=>{
  if (!app.isPackaged) return { ok:false, message:'La búsqueda de actualizaciones funciona en la versión instalada, no desde el modo de desarrollo.' };
  try { await autoUpdater.checkForUpdates(); return { ok:true, message:'Buscando actualizaciones...' }; }
  catch (e) { return { ok:false, message:e.message || 'No se pudo buscar actualizaciones.' }; }
 });
 autoUpdater.autoDownload = true;
-autoUpdater.autoInstallOnAppQuit = true;
+autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.on('checking-for-update',()=>sendUpdateStatus('checking','Buscando actualizaciones...'));
 autoUpdater.on('update-available',info=>sendUpdateStatus('available',`Nueva versión ${info.version} encontrada. Se está descargando...`,{version:info.version}));
 autoUpdater.on('update-not-available',()=>sendUpdateStatus('current','MakerFox está actualizado.'));
