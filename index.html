@@ -249,11 +249,45 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px rgba(255,75,92,.12)
  *,*:before,*:after{scroll-behavior:auto!important;transition:none!important}
 }
 
+
+/* Apariencia personalizable — preferencias aisladas de IndexedDB */
+body[data-theme="midnight"]{background:#090d14!important;background-image:radial-gradient(ellipse at 80% 0%,rgba(77,232,255,.09),transparent 36%),linear-gradient(135deg,#0b1220,#090d14)!important}
+body[data-theme="midnight"] nav#sideNav{background:linear-gradient(180deg,#101d2b,#0b1420)!important;border-right-color:rgba(77,232,255,.2)!important}
+body[data-theme="midnight"] .card{background:linear-gradient(145deg,#172331,#111b28)!important;border-color:#294052!important}
+body[data-theme="midnight"] .stat,body[data-theme="midnight"] input,body[data-theme="midnight"] select,body[data-theme="midnight"] textarea{background:#0c1722!important;border-color:#2a4052!important}
+body[data-theme="light"]{color-scheme:light;background:#eef1f5!important;background-image:linear-gradient(135deg,#f7f8fb,#e9edf3)!important;color:#202633!important}
+body[data-theme="light"] header{background:rgba(255,255,255,.94)!important;border-color:#d9dee7!important}
+body[data-theme="light"] header .eyebrow,body[data-theme="light"] header .muted{color:#596579!important}
+body[data-theme="light"] nav#sideNav{background:linear-gradient(180deg,#fff,#f1f4f8)!important;border-right:1px solid #d9dee7!important}
+body[data-theme="light"] .sidebar-brand-name{color:#202633!important}
+body[data-theme="light"] nav#sideNav button{color:#4b5565}
+body[data-theme="light"] nav#sideNav button:hover{background:#e8edf4!important;color:#202633!important}
+body[data-theme="light"] nav#sideNav .nav-group-label,body[data-theme="light"] nav#sideNav .sidebar-footer{color:#737f91}
+body[data-theme="light"] .card,body[data-theme="light"] .product{background:#fff!important;border-color:#dce1e9!important;color:#202633!important;box-shadow:0 8px 24px rgba(30,45,70,.07)!important}
+body[data-theme="light"] .card h3,body[data-theme="light"] .product b{color:#202633!important}
+body[data-theme="light"] .muted,body[data-theme="light"] label,body[data-theme="light"] .notice{color:#687386!important}
+body[data-theme="light"] input,body[data-theme="light"] select,body[data-theme="light"] textarea{background:#fff!important;color:#202633!important;border-color:#cbd3df!important}
+body[data-theme="light"] .stat,body[data-theme="light"] .chip{background:#f1f4f8!important;color:#273244!important;border-color:#dce1e9!important}
+body[data-theme="light"] .stat strong,body[data-theme="light"] .chip strong{color:#202633!important}
+body[data-theme="light"] .tag{background:#f3f5f8;color:#566174;border-color:#dce1e9}
+body[data-theme="light"] .order{color:#202633}
+body[data-theme="light"] .price{background:#fff1f0!important;color:#202633;border-color:#f2b7b4}
+body[data-accent="cyan"]{--mf-neon-red:#36cde8;--mf-neon-orange:#4de8ff;--accent:#22bfd8}
+body[data-accent="gold"]{--mf-neon-red:#e6ad35;--mf-neon-orange:#ffd36b;--accent:#d99b22}
+body[data-accent="violet"]{--mf-neon-red:#a78bfa;--mf-neon-orange:#d0b8ff;--accent:#9473ec}
+body[data-accent="red"]{--mf-neon-red:#ff4b5c;--mf-neon-orange:#ff8a3d;--accent:#f04432}
+body[data-accent] nav#sideNav button.active{box-shadow:inset 3px 0 var(--mf-neon-red),0 0 18px color-mix(in srgb,var(--mf-neon-red) 12%,transparent)!important;border-color:color-mix(in srgb,var(--mf-neon-red) 35%,transparent)!important}
+body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon-red),var(--mf-neon-orange))!important;border-color:var(--mf-neon-red)!important}
+.appearance-choice{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:11px;background:var(--panel2);cursor:pointer}
+.appearance-choice input{width:auto;accent-color:var(--mf-neon-red)}
+.appearance-swatch{width:34px;height:34px;border-radius:9px;border:1px solid rgba(255,255,255,.2);flex:0 0 34px}
+.appearance-preview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:650px){.appearance-preview{grid-template-columns:1fr}}
 </style></head><body>
 <header><div class="topbar-title"><div class="eyebrow">MAKERFOX WORKSPACE</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">Desktop · v1.2.4</span></header>
 <main class="wrap">
 <nav id="sideNav" aria-label="Navegación principal">
-<div class="sidebar-brand"><img src="assets/makerfox-logo.png" alt="MakerFox" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="sidebar-fallback">MF</div><div class="sidebar-brand-name">MAKER<span>FOX</span></div></div>
+<div class="sidebar-brand"><img src="assets/MakerFox-logo.png" alt="MakerFox" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="sidebar-fallback">MF</div><div class="sidebar-brand-name">MAKER<span>FOX</span></div></div>
 <button id="sidebarToggle" class="sidebar-toggle" type="button" title="Contraer menú" aria-label="Contraer menú"><span class="toggle-glyph">‹</span><span class="nav-label">Contraer menú</span></button>
 <div class="nav-group-label">ESPACIO DE TRABAJO</div>
 <button class="active" data-page="calc" title="Calculadora"><span class="nav-icon">◈</span><span class="nav-label">Calculadora</span></button>
@@ -261,7 +295,7 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px rgba(255,75,92,.12)
 <button data-page="orders" title="Pedidos"><span class="nav-icon">▤</span><span class="nav-label">Pedidos</span><span id="orderCount" class="nav-count">0</span></button>
 <button data-page="library" title="Modelos 3D"><span class="nav-icon">⬡</span><span class="nav-label">Modelos 3D</span></button>
 <div class="nav-group-label nav-bottom-label">ADMINISTRACIÓN</div>
-<button data-page="settings" title="Costos base"><span class="nav-icon">⚙</span><span class="nav-label">Costos base</span></button>
+<button data-page="settings" title="Costos base"><span class="nav-icon">⚙</span><span class="nav-label">Costos base</span></button>\n<button data-page="appearance" title="Apariencia"><span class="nav-icon">✦</span><span class="nav-label">Apariencia</span></button>
 <button data-page="backup" title="Respaldo"><span class="nav-icon">↥</span><span class="nav-label">Respaldo</span></button>
 <button data-page="updates" title="Actualizador"><span class="nav-icon">⟳</span><span class="nav-label">Actualizador</span></button>
 <div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox Desktop · 1.2.4</span></div>
@@ -329,6 +363,35 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 2px rgba(255,75,92,.12)
 <div><label>Error (%)</label><input id="sError" type="number" value="10"></div><div><label>Multiplicador inicial</label><input id="sMultiplier" type="number" step=".1" value="2.5"></div>
 </div><button class="primary" id="saveSettings" style="margin-top:12px">Guardar costos base</button><p id="settingsMessage" class="notice"></p><div class="settings-section"><h3>Catálogo de filamentos</h3><p class="notice">Agrega variantes con el nombre que quieras. El precio se captura por kilogramo y el comentario es opcional.</p><div class="fields"><div><label>Nombre del filamento</label><input id="newFilamentName" placeholder="PLA Matte Bambu · Verde"></div><div><label>Precio por kg ($)</label><input id="newFilamentPrice" type="number" min="0.01" step=".01" placeholder="279"></div><div style="grid-column:1/-1"><label>Comentario (opcional)</label><input id="newFilamentNote" placeholder="Marca, color, calidad..."></div></div><button class="primary" id="addFilament" style="margin-top:10px">+ Agregar filamento</button><div id="filamentList"></div></div></div></section>
 
+
+<section id="appearance" class="page">
+<div class="card">
+<h3>Personaliza tu espacio MakerFox</h3>
+<p class="notice">Estos ajustes solo cambian la apariencia de la aplicación. Se guardan en este equipo y no modifican tu catálogo, pedidos, costos ni respaldos.</p>
+<div class="settings-section" style="margin-top:0;padding-top:0;border:0">
+<h3>Tema visual</h3>
+<div class="appearance-preview">
+<label class="appearance-choice"><input type="radio" name="mfTheme" value="arcade"><span class="appearance-swatch" style="background:linear-gradient(135deg,#090b12,#ff4b5c 55%,#4de8ff)"></span><span><b>Neon Arcade</b><br><span class="small muted">Estilo retro futurista MakerFox</span></span></label>
+<label class="appearance-choice"><input type="radio" name="mfTheme" value="midnight"><span class="appearance-swatch" style="background:linear-gradient(135deg,#0b1420,#17364a)"></span><span><b>Medianoche</b><br><span class="small muted">Oscuro limpio con acentos fríos</span></span></label>
+<label class="appearance-choice"><input type="radio" name="mfTheme" value="light"><span class="appearance-swatch" style="background:linear-gradient(135deg,#fff,#dce4ef)"></span><span><b>Claro</b><br><span class="small muted">Interfaz luminosa y sencilla</span></span></label>
+</div>
+</div>
+<div class="settings-section">
+<h3>Color de acento</h3>
+<div class="fields">
+<label class="appearance-choice"><input type="radio" name="mfAccent" value="red"><span class="appearance-swatch" style="background:#ff4b5c"></span><span><b>Rojo MakerFox</b></span></label>
+<label class="appearance-choice"><input type="radio" name="mfAccent" value="cyan"><span class="appearance-swatch" style="background:#36cde8"></span><span><b>Cian eléctrico</b></span></label>
+<label class="appearance-choice"><input type="radio" name="mfAccent" value="gold"><span class="appearance-swatch" style="background:#e6ad35"></span><span><b>Dorado</b></span></label>
+<label class="appearance-choice"><input type="radio" name="mfAccent" value="violet"><span class="appearance-swatch" style="background:#a78bfa"></span><span><b>Violeta</b></span></label>
+</div>
+</div>
+<div class="settings-section">
+<h3>Comportamiento del menú</h3>
+<label class="appearance-choice"><input type="checkbox" id="appearanceCompact"><span><b>Recordar menú compacto</b><br><span class="small muted">Usa la barra lateral estrecha para dar más espacio al contenido.</span></span></label>
+</div>
+<div class="actions"><button class="primary" id="resetAppearance">Restablecer apariencia</button><span id="appearanceMessage" class="notice" aria-live="polite"></span></div>
+</div>
+</section>
 <section id="updates" class="page"><div class="card"><h3>Actualizador de MakerFox</h3><div class="tag">Versión instalada: <span id="installedVersion">1.2.4</span></div><p class="notice">MakerFox comprueba si hay una versión nueva publicada y la descarga automáticamente. Puedes seguir viendo el avance aquí. Cuando llegue al 100%, pulsa “Instalar y reiniciar”; la aplicación se cerrará y volverá a abrir sola. Tus datos locales se conservan.</p><button id="checkUpdates">Buscar actualizaciones</button> <button id="installUpdate" class="primary" hidden>Instalar y reiniciar</button><div id="updateProgressWrap" hidden style="margin-top:16px"><div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:7px"><b id="updateProgressLabel">Descargando actualización</b><b id="updatePercent">0%</b></div><div style="height:12px;background:#292e37;border:1px solid #3a414e;border-radius:20px;overflow:hidden"><div id="updateProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,#e3262e,#f2b705);border-radius:20px;transition:width .2s"></div></div><p id="updateTransfer" class="notice"></p></div><p id="updateMessage" class="notice">La búsqueda automática se realiza al iniciar MakerFox.</p></div></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -339,9 +402,19 @@ let db,settings={filament:279,filaments:[{id:"default-pla",name:"PLA Basic",pric
 const req=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open('MakerFoxDesktop',2);r.onupgradeneeded=()=>{let d=r.result;if(!d.objectStoreNames.contains('products'))d.createObjectStore('products',{keyPath:'id'});if(!d.objectStoreNames.contains('models'))d.createObjectStore('models',{keyPath:'id'});if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'id'});if(!d.objectStoreNames.contains('orders'))d.createObjectStore('orders',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
 const all=s=>req(db.transaction(s,'readonly').objectStore(s).getAll()),put=(s,v)=>req(db.transaction(s,'readwrite').objectStore(s).put(v)),del=(s,id)=>req(db.transaction(s,'readwrite').objectStore(s).delete(id));
-function page(name){document.querySelectorAll('nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===name));if(name==='catalog')renderProducts();if(name==='library')renderModels();if(name==='orders')renderOrders();if(name==='backup')backupStats()}
+function page(name){document.querySelectorAll('nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===name));if(name==='catalog')renderProducts();if(name==='library')renderModels();if(name==='orders')renderOrders();if(name==='backup')backupStats();if(name==='appearance')loadAppearanceControls()}
+const APPEARANCE_KEY='makerfoxAppearance';
+function readAppearance(){try{return {...{theme:'arcade',accent:'red',compact:false},...JSON.parse(localStorage.getItem(APPEARANCE_KEY)||'{}')}}catch{return {theme:'arcade',accent:'red',compact:false}}}
+function applyAppearance(){const a=readAppearance();document.body.dataset.theme=a.theme;document.body.dataset.accent=a.accent;document.body.classList.toggle('nav-collapsed',!!a.compact);const t=document.querySelector('input[name="mfTheme"][value="'+a.theme+'"]');if(t)t.checked=true;const ac=document.querySelector('input[name="mfAccent"][value="'+a.accent+'"]');if(ac)ac.checked=true;const compact=document.getElementById('appearanceCompact');if(compact)compact.checked=!!a.compact}
+function saveAppearance(patch){const next={...readAppearance(),...patch};localStorage.setItem(APPEARANCE_KEY,JSON.stringify(next));applyAppearance();const msg=document.getElementById('appearanceMessage');if(msg)msg.textContent='Preferencias guardadas en este equipo.'}
+function loadAppearanceControls(){applyAppearance()}
+document.querySelectorAll('input[name="mfTheme"]').forEach(el=>el.addEventListener('change',()=>saveAppearance({theme:el.value})));
+document.querySelectorAll('input[name="mfAccent"]').forEach(el=>el.addEventListener('change',()=>saveAppearance({accent:el.value})));
+document.getElementById('appearanceCompact').addEventListener('change',e=>saveAppearance({compact:e.target.checked}));
+document.getElementById('resetAppearance').addEventListener('click',()=>{localStorage.removeItem(APPEARANCE_KEY);applyAppearance();document.getElementById('appearanceMessage').textContent='Apariencia original restaurada.'});
+applyAppearance();
 document.querySelectorAll('nav [data-page]').forEach(b=>b.onclick=()=>page(b.dataset.page));
-document.addEventListener('click',function(event){const button=event.target.closest('#sidebarToggle');if(!button)return;event.preventDefault();const collapsed=document.body.classList.toggle('nav-collapsed');button.title=collapsed?'Expandir menú':'Contraer menú';button.setAttribute('aria-label',button.title);const label=button.querySelector('.nav-label');if(label)label.textContent=button.title;});
+document.addEventListener('click',function(event){const button=event.target.closest('#sidebarToggle');if(!button)return;event.preventDefault();const collapsed=document.body.classList.toggle('nav-collapsed');saveAppearance({compact:collapsed});button.title=collapsed?'Expandir menú':'Contraer menú';button.setAttribute('aria-label',button.title);const label=button.querySelector('.nav-label');if(label)label.textContent=button.title;});
 
 function selectedFilament(){return (settings.filaments||[]).find(f=>f.id===$('filamentSelect').value)||settings.filaments?.[0]||{name:'PLA Basic',price:settings.filament||279,note:''}}
 function readCost(){let mode=$('calcMode').value,qty=mode==='batch'?Math.max(2,Math.floor(+$('batchQty').value||2)):1,time=Math.max(0,(+$('hours').value||0)+(+$('minutes').value||0)/60),grams=+$('grams').value||0,assembly=+$('assembly').value||0,work=+$('work').value||0,extras=+$('extras').value||0,filament=selectedFilament();
