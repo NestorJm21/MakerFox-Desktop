@@ -5,6 +5,7 @@ on:
     branches:
       - release/v1.2.0
       - feature/v1.2.7-categorias-pedidos
+      - feature/v1.3.0-calculadora-inventario-cotizaciones
     tags:
       - "v*"
     paths:
@@ -34,6 +35,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Validate embedded JavaScript syntax
+        run: |
+          node -e "const fs=require('fs'),vm=require('vm'),html=fs.readFileSync('index.html','utf8'),a=html.indexOf('<script>')+8,b=html.indexOf('</script>',a);if(a<8||b<0)throw Error('Script not found');new vm.Script(html.slice(a,b));console.log('index.html JavaScript syntax OK')"
       - name: Build installer for branch validation
         if: startsWith(github.ref, 'refs/heads/')
         run: npm run dist -- --publish never
@@ -46,7 +50,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/')
         uses: actions/upload-artifact@v4
         with:
-          name: MakerFox-Desktop-Windows-v1.2.7-test
+          name: MakerFox-Desktop-Windows-v1.3.0-test
           path: |
             dist/*.exe
             dist/*.blockmap
