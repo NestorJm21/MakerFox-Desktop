@@ -601,9 +601,47 @@ const originalPage=page;page=function(name){originalPage(name);if(name==='invent
 
 
 async function readZipEntries(file){const bytes=new Uint8Array(await file.arrayBuffer()),view=new DataView(bytes.buffer);let eocd=-1;for(let i=bytes.length-22;i>=Math.max(0,bytes.length-65558);i--){if(view.getUint32(i,true)===0x06054b50){eocd=i;break}}if(eocd<0)throw Error('El archivo no parece ser un ZIP 3MF válido.');let count=view.getUint16(eocd+10,true),offset=view.getUint32(eocd+16,true),out=[];for(let n=0;n<count;n++){if(view.getUint32(offset,true)!==0x02014b50)break;let method=view.getUint16(offset+10,true),compressed=view.getUint32(offset+20,true),nameLen=view.getUint16(offset+28,true),extraLen=view.getUint16(offset+30,true),commentLen=view.getUint16(offset+32,true),local=view.getUint32(offset+42,true),name=new TextDecoder().decode(bytes.slice(offset+46,offset+46+nameLen)),start=local+30+view.getUint16(local+26,true)+view.getUint16(local+28,true),raw=bytes.slice(start,start+compressed);if(!name.endsWith('/'))try{let data;if(method===0)data=raw;else if(method===8){let ds=new DecompressionStream('deflate-raw');data=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(ds)).arrayBuffer())}else data=null;if(data)out.push({name,text:/\.(config|xml|json|gcode|txt)$/i.test(name)?new TextDecoder().decode(data):'',data})}catch{}offset+=46+nameLen+extraLen+commentLen}return out}
-function metadataValue(text,keys){const q='["\\x27]';for(const k of keys){const patterns=[new RegExp('<metadata[^>]*(?:key|name)='+q+k+q+'[^>]*value='+q+'([^"\\x27]+)','i'),new RegExp('(?:key|name)='+q+k+q+'[^>]*>([^<]+)','i'),new RegExp(k+'\\s*[:=]\\s*["\\x27]?([^,;\\r\\n<"\\x27]+)','i')];for(const re of patterns){let m=text.match(re);if(m)return(m[1]||'').trim()}}return ''}
-function parsePrintTime(v){if(!v)return null;let h=0,m=0,s=0,hh=v.match(/(\d+)h/i),mm=v.match(/(\d+)m/i),ss=v.match(/(\d+)s/i);if(hh||mm||ss){h=+(hh?.[1]||0);m=+(mm?.[1]||0);s=+(ss?.[1]||0)}else if(/^\d+$/.test(v)){let n=+v;h=Math.floor(n/3600);m=Math.floor(n%3600/60);s=n%60}else return null;return h+(m+s/60)/60}
-$('slicedFile').onchange=async()=>{let file=$('slicedFile').files[0];if(!file)return;$('slicedStatus').textContent='Analizando archivo laminado…';$('slicedPlates').textContent='';try{let entries=await readZipEntries(file),meta=entries.filter(x=>x.text&&(/slice_info|project_settings|plate|metadata/i.test(x.name))),allText=meta.map(x=>x.text).join('\n'),g=metadataValue(allText,['used_g','filament_used_g','total_weight','weight']),time=metadataValue(allText,['print_time','estimated_print_time','prediction']);let grams=Number(String(g).replace(',','.').match(/[\d.]+/)?.[0]);let hours=parsePrintTime(time);let filament=metadataValue(allText,['filament_type','filament_settings_id','material']);let plates=[...new Set(meta.map(x=>{let m=x.name.match(/plate[_-]?(\d+)/i);return m?Number(m[1]):null}).filter(x=>x!==null))];let found=[];if(Number.isFinite(grams)&&grams>0){$('grams').value=grams;found.push('gramos: '+grams+' g')}if(hours!==null&&hours>0){$('hours').value=Math.floor(hours);$('minutes').value=Math.round(hours%1*60);found.push('tiempo: '+Math.floor(hours)+' h '+Math.round(hours%1*60)+' min')}if(filament){let f=settings.filaments.find(x=>x.name.toLowerCase().includes(filament.toLowerCase())||filament.toLowerCase().includes(x.name.toLowerCase()));if(f)$('filamentSelect').value=f.id;found.push('material: '+filament)}$('calcMode').value='batch';if(plates.length){$('slicedPlates').textContent='Placas detectadas: '+plates.join(', ')+'. La cantidad de piezas debe verificarse manualmente; el número de placas no se tomará como número de piezas.'}modeUI();readCost();$('slicedStatus').textContent=found.length?'Datos reconocidos: '+found.join(' · ')+'. Revisa y corrige los campos antes de calcular.':'El archivo se abrió, pero no se reconocieron metadatos compatibles. Captura los datos manualmente.'}catch(e){$('slicedStatus').textContent='No se pudo analizar el archivo: '+e.message+'. Puedes continuar capturando los datos manualmente.'}};
+function parseSliceInfo(xml){
+ const plates=[],plateRe=/<plate\b[^>]*>([\s\S]*?)<\/plate>/gi;let pm;
+ const attr=(s,k)=>{const m=s.match(new RegExp('\\b'+k+'\\s*=\\s*["\\x27]([^"\\x27]*)["\\x27]','i'));return m?m[1]:''};
+ const meta=(s,k)=>{const re=new RegExp('<metadata\\b(?=[^>]*\\bkey\\s*=\\s*["\\x27]'+k+'["\\x27])[^>]*\\bvalue\\s*=\\s*["\\x27]([^"\\x27]*)["\\x27]','i');const m=s.match(re);return m?m[1]:''};
+ while((pm=plateRe.exec(xml))){
+  const body=pm[1],index=Number(meta(body,'index'))||plates.length+1,weight=Number(String(meta(body,'weight')).replace(',','.')),seconds=Number(meta(body,'prediction'))||0;
+  const filaments=[];const fr=/<filament\b[^>]*\/?>/gi;let fm;
+  while((fm=fr.exec(body))){const tag=fm[0];filaments.push({id:attr(tag,'id'),type:attr(tag,'type'),color:attr(tag,'color'),grams:Number(String(attr(tag,'used_g')).replace(',','.'))||0})}
+  const objects=[];const or=/<object\b[^>]*\/?>/gi;let om;while((om=or.exec(body)))objects.push(attr(om[0],'name'));
+  plates.push({index,weight:Number.isFinite(weight)?weight:0,seconds,filaments,objects});
+ }
+ return plates;
+}
+function parsePrintTime(v){if(!v)return null;let h=0,m=0,s=0,hh=v.match(/(\d+)h/i),mm=v.match(/(\d+)m/i),ss=v.match(/(\d+)s/i);if(hh||mm||ss){h=+(hh?.[1]||0);m=+(mm?.[1]||0);s=+(ss?.[1]||0)}else if(/^\d+(?:\.\d+)?$/.test(v)){let n=+v;h=Math.floor(n/3600);m=Math.floor(n%3600/60);s=n%60}else return null;return h+(m+s/60)/60}
+$('slicedFile').onchange=async()=>{
+ const file=$('slicedFile').files[0];if(!file)return;
+ $('slicedStatus').textContent='Analizando archivo laminado…';$('slicedPlates').textContent='';
+ try{
+  const entries=await readZipEntries(file),slice=entries.find(x=>x.name.toLowerCase()==='metadata/slice_info.config');
+  if(!slice?.text)throw Error('No se encontró Metadata/slice_info.config. Exporta el archivo como .gcode.3mf desde Bambu Studio.');
+  const plates=parseSliceInfo(slice.text);if(!plates.length)throw Error('No se encontraron placas con metadatos de laminado.');
+  const grams=plates.reduce((n,p)=>n+(p.weight||p.filaments.reduce((a,f)=>a+f.grams,0)),0);
+  const seconds=plates.reduce((n,p)=>n+p.seconds,0),minutes=Math.round(seconds/60);
+  const filaments=[...new Map(plates.flatMap(p=>p.filaments).map(f=>[(f.type+'|'+f.color),f])).values()];
+  const materials=[...new Set(filaments.map(f=>f.type).filter(Boolean))];
+  const objects=[...new Set(plates.flatMap(p=>p.objects).filter(Boolean))];
+  const found=[];
+  if(grams>0){$('grams').value=grams.toFixed(2);found.push('filamento: '+grams.toFixed(2)+' g')}
+  if(seconds>0){$('hours').value=Math.floor(minutes/60);$('minutes').value=minutes%60;found.push('tiempo: '+Math.floor(minutes/60)+' h '+(minutes%60)+' min')}
+  if(materials.length){
+   const material=materials.join(', ');
+   const f=settings.filaments.find(x=>materials.some(m=>x.name.toLowerCase().includes(m.toLowerCase())||m.toLowerCase().includes(x.name.toLowerCase())));
+   if(f)$('filamentSelect').value=f.id;
+   found.push('material: '+material);
+  }
+  $('calcMode').value='batch';
+  $('slicedPlates').textContent='Placas detectadas: '+plates.map(p=>'#'+p.index+(p.weight?' · '+p.weight.toFixed(2)+' g':'')+(p.seconds?' · '+Math.round(p.seconds/60)+' min':'')).join(' | ')+'.'+(objects.length?' Modelo: '+objects.join(', ')+'.':'')+' La cantidad de piezas no se deduce del número de placas; revísala manualmente.';
+  modeUI();readCost();
+  $('slicedStatus').textContent=found.length?'Importación completada: '+found.join(' · ')+'. Verifica los valores y completa cualquier dato que falte.':'Se detectaron placas, pero faltan peso o tiempo en los metadatos. Captura esos datos manualmente.';
+ }catch(e){$('slicedStatus').textContent='No se pudo analizar el archivo: '+e.message+' Puedes continuar capturando los datos manualmente.'}
+};
 
 async function init(){try{db=await openDB();products=await all('products');models=await all('models');orders=await all('orders');inventory=await all('inventory');let s=await req(db.transaction('settings','readonly').objectStore('settings').get('base'));if(s)settings={...settings,...s};if(!Array.isArray(settings.filaments)||!settings.filaments.length)settings.filaments=[{id:'default-pla',name:'PLA Basic',price:settings.filament||279,note:'Filamento predeterminado'}];ensureCategories();loadSettings();renderCategoryOptions();renderCategoryList();renderFilamentOptions();$('multiplier').value=settings.multiplier;$('count').textContent=products.length;$('orderCount').textContent=orders.filter(o=>o.status!=='delivered').length;readCost();refreshProductSelect();renderInventory();renderClientProducts();}catch(e){$('message').textContent='No se pudo iniciar la base de datos: '+e.message}}
 init();
