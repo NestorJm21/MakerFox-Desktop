@@ -37,7 +37,7 @@ jobs:
         run: npm ci
       - name: Validate embedded JavaScript syntax
         run: |
-          node -e "const fs=require('fs'),vm=require('vm'),html=fs.readFileSync('index.html','utf8'),match=html.match(/<script>([\\s\\S]*?)<\\/script>/);if(!match)throw Error('Script not found');new vm.Script(match[1]);console.log('index.html JavaScript syntax OK')"
+          node -e "const fs=require('fs'),vm=require('vm'),html=fs.readFileSync('index.html','utf8'),a=html.indexOf('<script>')+8,b=html.indexOf('</script>',a);if(a<8||b<0)throw Error('Script not found');new vm.Script(html.slice(a,b));console.log('index.html JavaScript syntax OK')"
       - name: Build installer for branch validation
         if: startsWith(github.ref, 'refs/heads/')
         run: npm run dist -- --publish never
