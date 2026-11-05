@@ -657,6 +657,11 @@ $('slicedFile').onchange=async()=>{
 
 async function init(){try{db=await openDB();await logStorageDiagnostic('inicio-antes-de-cargar');products=await all('products');models=await all('models');orders=await all('orders');inventory=await all('inventory');let s=await req(db.transaction('settings','readonly').objectStore('settings').get('base'));if(s)settings={...settings,...s};if(!Array.isArray(settings.filaments)||!settings.filaments.length)settings.filaments=[{id:'default-pla',name:'PLA Basic',price:settings.filament||279,note:'Filamento predeterminado'}];ensureCategories();loadSettings();renderCategoryOptions();renderCategoryList();renderFilamentOptions();$('multiplier').value=settings.multiplier;$('count').textContent=products.length;$('orderCount').textContent=orders.filter(o=>o.status!=='delivered').length;readCost();refreshProductSelect();renderInventory();renderClientProducts();await logStorageDiagnostic('inicio-despues-de-cargar');}catch(e){$('message').textContent='No se pudo iniciar la base de datos: '+e.message;console.error('MakerFox init:',e)}}
 init();
+ if(window.makerfoxDesktop?.openStorageLog){
+  const diagButton=document.createElement('button');diagButton.textContent='Abrir diagnóstico de almacenamiento';diagButton.style.marginTop='10px';
+  diagButton.onclick=async()=>{const result=await window.makerfoxDesktop.openStorageLog();if(!result.ok)alert('No se pudo abrir el diagnóstico: '+(result.error||result.path||'error'));};
+  const backupPage=document.getElementById('backup');if(backupPage)backupPage.appendChild(diagButton);
+ }
  if(window.makerfoxDesktop?.getVersion)window.makerfoxDesktop.getVersion().then(v=>{$('installedVersion').textContent=v||'Desconocida'}).catch(()=>{$('installedVersion').textContent='No disponible'});
 })();
 </script></body></html>
