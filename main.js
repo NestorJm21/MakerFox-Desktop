@@ -25,7 +25,7 @@ function createWindow(){
 const storageLogPath=path.join(app.getPath('userData'),'makerfox-storage-diagnostic.log');
 function writeStorageLog(entry){
  try{
-  const line=JSON.stringify({time:new Date().toISOString(),...entry})+'\\n';
+  const line=JSON.stringify({time:new Date().toISOString(),...entry})+'\n';
   fs.appendFileSync(storageLogPath,line,'utf8');
   return {ok:true,path:storageLogPath};
  }catch(e){return {ok:false,error:e.message};}
