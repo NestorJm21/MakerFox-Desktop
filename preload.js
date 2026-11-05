@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('makerfoxDesktop',{
  platform:process.platform,
- version:'1.2.7',
+ getVersion:()=>ipcRenderer.invoke('makerfox:get-version'),
  openModel:(buffer,fileName)=>ipcRenderer.invoke('makerfox:open-model',{buffer,fileName}),
  checkUpdates:()=>ipcRenderer.invoke('makerfox:check-updates'),
  installUpdate:()=>ipcRenderer.invoke('makerfox:install-update'),
