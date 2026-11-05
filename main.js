@@ -22,6 +22,22 @@ function createWindow(){
  mainWindow.loadURL('makerfox://app/index.html');
  mainWindow.on('closed',()=>{mainWindow=null;});
 }
+const storageLogPath=path.join(app.getPath('userData'),'makerfox-storage-diagnostic.log');
+function writeStorageLog(entry){
+ try{
+  const line=JSON.stringify({time:new Date().toISOString(),...entry})+'\\n';
+  fs.appendFileSync(storageLogPath,line,'utf8');
+  return {ok:true,path:storageLogPath};
+ }catch(e){return {ok:false,error:e.message};}
+}
+ipcMain.handle('makerfox:storage-diagnostic',(_event,entry)=>{
+ const base={appName:app.getName(),version:app.getVersion(),userData:app.getPath('userData'),sessionData:app.getPath('sessionData'),execPath:process.execPath,platform:process.platform};
+ return writeStorageLog({...base,...(entry&&typeof entry==='object'?entry:{})});
+});
+ipcMain.handle('makerfox:open-storage-log',async()=>{
+ try{await fs.promises.access(storageLogPath);const error=await shell.openPath(storageLogPath);return {ok:!error,error:error||undefined,path:storageLogPath};}
+ catch(e){return {ok:false,error:e.message,path:storageLogPath};}
+});
 ipcMain.handle('makerfox:get-version',()=>app.getVersion());
 ipcMain.handle('makerfox:open-model', async (_event,payload)=>{
  try{
