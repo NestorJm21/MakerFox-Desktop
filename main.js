@@ -48,7 +48,6 @@ ipcMain.handle('makerfox:check-updates', async ()=>{
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.on('checking-for-update',()=>sendUpdateStatus('checking','Buscando actualizaciones...'));
-autoUpdater.on('update-available',info=>sendUpdateStatus('available',`Nueva versión ${info.version} encontrada. Se está descargando...`,{version:info.version}));
 autoUpdater.on('update-not-available',()=>finishUpdateCheck('current','MakerFox está actualizado.'));
 autoUpdater.on('update-available',info=>finishUpdateCheck('available',`Nueva versión ${info.version} encontrada. Se está preparando la descarga...`,{version:info.version}));
 autoUpdater.on('download-progress',p=>sendUpdateStatus('downloading',`Descargando actualización: ${Math.round(p.percent)}%`,{percent:Math.round(p.percent),transferred:p.transferred,total:p.total,bytesPerSecond:p.bytesPerSecond}));
