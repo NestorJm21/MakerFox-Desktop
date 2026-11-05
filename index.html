@@ -643,6 +643,7 @@ $('slicedFile').onchange=async()=>{
 };
 
 async function init(){try{db=await openDB();products=await all('products');models=await all('models');orders=await all('orders');inventory=await all('inventory');let s=await req(db.transaction('settings','readonly').objectStore('settings').get('base'));if(s)settings={...settings,...s};if(!Array.isArray(settings.filaments)||!settings.filaments.length)settings.filaments=[{id:'default-pla',name:'PLA Basic',price:settings.filament||279,note:'Filamento predeterminado'}];ensureCategories();loadSettings();renderCategoryOptions();renderCategoryList();renderFilamentOptions();$('multiplier').value=settings.multiplier;$('count').textContent=products.length;$('orderCount').textContent=orders.filter(o=>o.status!=='delivered').length;readCost();refreshProductSelect();renderInventory();renderClientProducts();}catch(e){$('message').textContent='No se pudo iniciar la base de datos: '+e.message}}
-init();\n if(window.makerfoxDesktop?.getVersion)window.makerfoxDesktop.getVersion().then(v=>{$('installedVersion').textContent=v||'Desconocida'}).catch(()=>{$('installedVersion').textContent='No disponible'});
+init();
+ if(window.makerfoxDesktop?.getVersion)window.makerfoxDesktop.getVersion().then(v=>{$('installedVersion').textContent=v||'Desconocida'}).catch(()=>{$('installedVersion').textContent='No disponible'});
 })();
 </script></body></html>
