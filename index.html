@@ -472,7 +472,34 @@ $('amountPaid').oninput=calcOrderTotals;
 function resetOrderForm(){editingOrder=null;orderLines=[];['client','phone','dueDate','orderDescription'].forEach(id=>$(id).value='');$('priority').value='normal';$('orderStatus').value='pending';$('amountPaid').value=0;$('orderQty').value=1;$('orderUnitsPerBatch').value=2;$('orderMode').value='unit';$('orderCustomPrice').value='';$('otherDescription').value='';updateOrderModeUI();$('orderFormTitle').textContent='Nuevo pedido';$('saveOrder').textContent='Guardar pedido';renderOrderLines();refreshProductSelect()}
 $('newOrder').onclick=()=>{$('orderForm').classList.remove('hidden');resetOrderForm();$('client').focus()};
 $('cancelOrder').onclick=()=>{$('orderForm').classList.add('hidden');resetOrderForm()};
-$('saveOrder').onclick=async()=>{let client=$('client').value.trim();if(!client){$('orderMessage').textContent='Escribe el nombre del cliente.';return}if(!orderLines.length){$('orderMessage').textContent='Agrega al menos un producto del catálogo.';return}let totals=calcOrderTotals();if(totals.paid>totals.total){$('orderMessage').textContent='El monto pagado no puede superar el total del pedido.';return}let old=orders.find(o=>o.id===editingOrder),o={id:editingOrder||crypto.randomUUID(),number:old?.number||('PED-'+String(Date.now()).slice(-6)),client,phone:$('phone').value.trim(),dueDate:$('dueDate').value,priority:$('priority').value,status:$('orderStatus').value,description:$('orderDescription').value,lines:orderLines,total:totals.total,paid:totals.paid,balance:totals.balance,payment:totals.payment,created:old?.created||new Date().toISOString(),updated:new Date().toISOString(),deliveredAt:old?.deliveredAt||null};await put('orders',o);orders=await all('orders');if(cloudUser)cloudWrite(o).catch(e=>cloudMsg('Pedido guardado localmente; pendiente de sincronizar: '+e.message,'Pendiente'));$('orderForm').classList.add('hidden');resetOrderForm();renderOrders();$('orderMessage').textContent='Pedido guardado.'};
+$('saveOrder').onclick=async()=>{
+ const button=$('saveOrder'),message=$('orderMessage');
+ if(button.disabled)return;
+ const client=$('client').value.trim();
+ if(!client){message.textContent='No se guardó: escribe el nombre del cliente.';return}
+ if(!orderLines.length){message.textContent='No se guardó: agrega al menos un producto con “Agregar al pedido”.';return}
+ const totals=calcOrderTotals();
+ if(!Number.isFinite(totals.total)||!Number.isFinite(totals.paid)||totals.paid<0){message.textContent='No se guardó: revisa el total y el monto pagado.';return}
+ if(totals.paid>totals.total+0.001){message.textContent='No se guardó: el monto pagado no puede superar el total.';return}
+ if(!db){message.textContent='No se guardó: la base de datos aún no está lista. Cierra y vuelve a abrir MakerFox.';return}
+ button.disabled=true;button.textContent='Guardando…';message.textContent='Guardando pedido en este equipo…';
+ try{
+  const previous=orders.find(o=>o.id===editingOrder);
+  const order={id:editingOrder||crypto.randomUUID(),number:previous?.number||('PED-'+String(Date.now()).slice(-6)),client,phone:$('phone').value.trim(),dueDate:$('dueDate').value,priority:$('priority').value,status:$('orderStatus').value,description:$('orderDescription').value,lines:orderLines.map(line=>({...line})),total:totals.total,paid:totals.paid,balance:totals.balance,payment:totals.payment,created:previous?.created||new Date().toISOString(),updated:new Date().toISOString(),deliveredAt:previous?.deliveredAt||null};
+  const tx=db.transaction('orders','readwrite');
+  tx.objectStore('orders').put(order);
+  await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||new Error('Error de IndexedDB'));tx.onabort=()=>reject(tx.error||new Error('La transacción fue cancelada'));});
+  orders=await all('orders');
+  if(!orders.some(item=>item.id===order.id))throw new Error('La base no confirmó el pedido después de guardarlo.');
+  if(cloudUser)cloudWrite(order).catch(e=>cloudMsg('Pedido guardado localmente; pendiente de sincronizar: '+e.message,'Pendiente'));
+  $('orderForm').classList.add('hidden');resetOrderForm();renderOrders();
+ }catch(error){
+  console.error('MakerFox: error al guardar pedido',error);
+  message.textContent='No se pudo guardar el pedido: '+(error?.message||String(error))+'. Tus datos del formulario siguen ahí; no cierres esta ventana.';
+ }finally{
+  button.disabled=false;button.textContent='Guardar pedido';
+ }
+};
 
 const SUPABASE_URL='https://mmbblrxbwmxncwjcojjn.supabase.co',SUPABASE_KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
 let cloudClient=null,cloudUser=null,cloudChannel=null,cloudBusy=false;
@@ -559,7 +586,24 @@ const to64=blob=>new Promise((ok,no)=>{let r=new FileReader();r.onload=()=>ok(r.
 async function encode(o){let x={...o};for(let k of ['photo','model','file'])if(x[k]){x[k+'64']=await to64(x[k]);delete x[k]}return x}
 function decode(o){let x={...o};for(let k of ['photo','model','file'])if(x[k+'64']){x[k]=from64(x[k+'64']);delete x[k+'64']}return x}
 function backupStats(){$('backupProducts').textContent=products.length;$('backupModels').textContent=models.length;$('backupOrders').textContent=orders.length}
-$('exportBackup').onclick=async()=>{try{let data={app:'MakerFox',version:3,created:new Date().toISOString(),settings,products:await Promise.all(products.map(encode)),models:await Promise.all(models.map(encode)),orders,inventory:await all('inventory')};let blob=new Blob([JSON.stringify(data)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='MakerFox_Respaldo_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);$('backupMessage').textContent='Respaldo completo generado, incluidos los pedidos.'}catch(e){$('backupMessage').textContent='Error al generar respaldo: '+e.message}};
+$('exportBackup').onclick=async()=>{
+ const button=$('exportBackup'),message=$('backupMessage');
+ if(button.disabled)return;
+ button.disabled=true;message.textContent='Leyendo datos actuales para crear el respaldo…';
+ try{
+  if(!db)throw new Error('La base de datos no está disponible.');
+  const [freshProducts,freshModels,freshOrders,freshInventory]=await Promise.all([all('products'),all('models'),all('orders'),all('inventory')]);
+  const freshSettings=(await all('settings')).find(x=>x.id==='base')||settings;
+  const data={app:'MakerFox',version:3,created:new Date().toISOString(),settings:freshSettings,products:await Promise.all(freshProducts.map(encode)),models:await Promise.all(freshModels.map(encode)),orders:freshOrders,inventory:freshInventory};
+  const json=JSON.stringify(data),blob=new Blob([json],{type:'application/json'});
+  if(!blob.size)throw new Error('El archivo de respaldo quedó vacío.');
+  const url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='MakerFox_Respaldo_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
+  message.textContent='Respaldo preparado: '+data.products.length+' productos, '+data.orders.length+' pedidos, '+data.models.length+' modelos. Comprueba que se descargó el archivo.';
+ }catch(error){console.error('MakerFox: error al crear respaldo',error);message.textContent='No se pudo crear el respaldo: '+(error?.message||String(error))}
+ finally{button.disabled=false}
+};
 $('restore').onclick=async()=>{let f=$('restoreFile').files[0];if(!f)return alert('Selecciona un respaldo.');if(!confirm('Se reemplazarán productos, modelos, pedidos y configuración. ¿Continuar?'))return;try{let d=JSON.parse(await f.text());if(d.app!=='MakerFox'||!Array.isArray(d.products)||!Array.isArray(d.models))throw Error('Formato no válido');for(let s of ['products','models','orders','inventory'])for(let old of await all(s))await del(s,old.id);for(let p of d.products)await put('products',decode(p));for(let m of d.models)await put('models',decode(m));for(let o of (d.orders||[]))await put('orders',o);for(let x of (d.inventory||[]))await put('inventory',x);inventory=await all('inventory');settings={...settings,...(d.settings||{})};await put('settings',{id:'base',...settings});products=await all('products');models=await all('models');orders=await all('orders');loadSettings();backupStats();$('backupMessage').textContent='Respaldo restaurado correctamente.';renderProducts();renderOrders();renderInventory()}catch(e){$('backupMessage').textContent='No se pudo restaurar: '+e.message}};
 const DEFAULT_CATEGORIES=[{code:'DE',name:'Decoración'},{code:'LL',name:'Llaveros'},{code:'FL',name:'Flores'},{code:'FI',name:'Figuras'},{code:'NE',name:'Negocios'},{code:'RP',name:'Repuestos'}];
 function ensureCategories(){if(!Array.isArray(settings.categories)||!settings.categories.length)settings.categories=DEFAULT_CATEGORIES.map(x=>({...x}));}
