@@ -6,6 +6,7 @@ on:
       - release/v1.2.0
       - feature/v1.2.7-categorias-pedidos
       - feature/v1.3.0-calculadora-inventario-cotizaciones
+      - fix/pedidos-respaldo-operativo-1.3.5
     tags:
       - "v*"
     paths:
