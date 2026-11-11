@@ -472,7 +472,35 @@ $('amountPaid').oninput=calcOrderTotals;
 function resetOrderForm(){editingOrder=null;orderLines=[];['client','phone','dueDate','orderDescription'].forEach(id=>$(id).value='');$('priority').value='normal';$('orderStatus').value='pending';$('amountPaid').value=0;$('orderQty').value=1;$('orderUnitsPerBatch').value=2;$('orderMode').value='unit';$('orderCustomPrice').value='';$('otherDescription').value='';updateOrderModeUI();$('orderFormTitle').textContent='Nuevo pedido';$('saveOrder').textContent='Guardar pedido';renderOrderLines();refreshProductSelect()}
 $('newOrder').onclick=()=>{$('orderForm').classList.remove('hidden');resetOrderForm();$('client').focus()};
 $('cancelOrder').onclick=()=>{$('orderForm').classList.add('hidden');resetOrderForm()};
-$('saveOrder').onclick=async()=>{let client=$('client').value.trim();if(!client){$('orderMessage').textContent='Escribe el nombre del cliente.';return}if(!orderLines.length){$('orderMessage').textContent='Agrega al menos un producto del catálogo.';return}let totals=calcOrderTotals();if(totals.paid>totals.total){$('orderMessage').textContent='El monto pagado no puede superar el total del pedido.';return}let old=orders.find(o=>o.id===editingOrder),o={id:editingOrder||crypto.randomUUID(),number:old?.number||('PED-'+String(Date.now()).slice(-6)),client,phone:$('phone').value.trim(),dueDate:$('dueDate').value,priority:$('priority').value,status:$('orderStatus').value,description:$('orderDescription').value,lines:orderLines,total:totals.total,paid:totals.paid,balance:totals.balance,payment:totals.payment,created:old?.created||new Date().toISOString(),updated:new Date().toISOString(),deliveredAt:old?.deliveredAt||null};await put('orders',o);orders=await all('orders');if(cloudUser)cloudWrite(o).catch(e=>cloudMsg('Pedido guardado localmente; pendiente de sincronizar: '+e.message,'Pendiente'));$('orderForm').classList.add('hidden');resetOrderForm();renderOrders();$('orderMessage').textContent='Pedido guardado.'};
+$('saveOrder').type='button';
+$('saveOrder').onclick=async()=>{
+ const button=$('saveOrder'),message=$('orderMessage');
+ if(button.disabled)return;
+ const client=$('client').value.trim();
+ if(!client){message.textContent='No se guardó: escribe el nombre del cliente.';return}
+ if(!orderLines.length){message.textContent='No se guardó: agrega al menos un producto con “Agregar al pedido”.';return}
+ const totals=calcOrderTotals();
+ if(!Number.isFinite(totals.total)||!Number.isFinite(totals.paid)||totals.paid<0){message.textContent='No se guardó: revisa el total y el monto pagado.';return}
+ if(totals.paid>totals.total+0.001){message.textContent='No se guardó: el monto pagado no puede superar el total.';return}
+ if(!db){message.textContent='No se guardó: la base de datos aún no está lista. Cierra y vuelve a abrir MakerFox.';return}
+ button.disabled=true;button.textContent='Guardando…';message.textContent='Guardando pedido en este equipo…';
+ try{
+  const previous=orders.find(o=>o.id===editingOrder);
+  const order={id:editingOrder||crypto.randomUUID(),number:previous?.number||('PED-'+String(Date.now()).slice(-6)),client,phone:$('phone').value.trim(),dueDate:$('dueDate').value,priority:$('priority').value,status:$('orderStatus').value,description:$('orderDescription').value,lines:orderLines.map(line=>({...line})),total:totals.total,paid:totals.paid,balance:totals.balance,payment:totals.payment,created:previous?.created||new Date().toISOString(),updated:new Date().toISOString(),deliveredAt:previous?.deliveredAt||null};
+  const tx=db.transaction('orders','readwrite');
+  tx.objectStore('orders').put(order);
+  await new Promise((resolve,reject)=>{tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error||new Error('Error de IndexedDB'));tx.onabort=()=>reject(tx.error||new Error('La transacción fue cancelada'));});
+  orders=await all('orders');
+  if(!orders.some(item=>item.id===order.id))throw new Error('La base no confirmó el pedido después de guardarlo.');
+  if(cloudUser)cloudWrite(order).catch(e=>cloudMsg('Pedido guardado localmente; pendiente de sincronizar: '+e.message,'Pendiente'));
+  $('orderForm').classList.add('hidden');resetOrderForm();renderOrders();
+ }catch(error){
+  console.error('MakerFox: error al guardar pedido',error);
+  message.textContent='No se pudo guardar el pedido: '+(error?.message||String(error))+'. Tus datos del formulario siguen ahí; no cierres esta ventana.';
+ }finally{
+  button.disabled=false;button.textContent='Guardar pedido';
+ }
+};
 
 const SUPABASE_URL='https://mmbblrxbwmxncwjcojjn.supabase.co',SUPABASE_KEY='sb_publishable_daNSCBU_PyLX5WPg16bleQ_D4FdT004';
 let cloudClient=null,cloudUser=null,cloudChannel=null,cloudBusy=false;
