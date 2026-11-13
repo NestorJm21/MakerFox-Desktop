@@ -389,7 +389,7 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
     <div><label>Parte que paga el cliente ($)</label><input id="qCustomerShare" type="number" min="0" step=".01" value="0"></div>
    </div><p class="notice" id="qShipNote">La tarifa guardada es una estimación local, no una cotización en tiempo real de la paquetería. Para tarifas oficiales se necesitará integrar la API de cada proveedor y sus credenciales.</p></div>
    <div class="price"><div class="small">TOTAL A COBRAR AL CLIENTE</div><strong id="qGrandTotal">$0.00</strong><div class="notice">Productos + parte del envío a cargo del cliente. MakerFox absorbe: <b id="qMakerCost">$0.00</b></div></div>
-   <div class="actions"><button class="primary" id="qSaveQuote">Guardar cotización</button><button id="qCopyQuote">Copiar resumen</button></div>
+   <div class="actions"><button class="primary" id="qSaveQuote">Guardar cotización</button><button id="qCopyQuote">Copiar resumen</button><button id="qNew">Nueva cotización</button></div>
    <div id="qSavedQuotes"></div>
   </div>
  </div>
@@ -404,7 +404,7 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
 <div class="subtabs"><button class="active" data-orderview="active">Pedidos activos</button><button data-orderview="delivered">Ya entregados</button></div>
 <div id="orderForm" class="card hidden" style="margin-top:12px">
 <h3 id="orderFormTitle">Nuevo pedido</h3><div class="fields">
-<div><label>Nombre del cliente *</label><input id="client" placeholder="Nombre completo"></div><div><label>Teléfono</label><input id="phone" placeholder="Número de contacto"></div>
+<div><label>Nombre del cliente *</label><input id="orderClient" placeholder="Nombre completo"></div><div><label>Teléfono</label><input id="phone" placeholder="Número de contacto"></div>
 <div><label>Fecha de entrega</label><input id="dueDate" type="date"></div><div><label>Prioridad</label><select id="priority"><option value="normal">Normal · Azul</option><option value="urgent">Urgente · Rojo</option><option value="high">Alta · Naranja</option><option value="low">Baja · Gris</option></select></div>
 <div><label>Estado del pedido</label><select id="orderStatus"><option value="pending">Pendiente</option><option value="process">En proceso</option><option value="ready">Listo para entregar</option></select></div><div><label>Descripción / observaciones</label><input id="orderDescription" placeholder="Detalles del pedido"></div>
 </div>
@@ -662,12 +662,12 @@ function renderOrderLines(){$('orderItems').innerHTML=orderLines.length?orderLin
 $('addOrderItem').onclick=()=>{let qty=Math.max(1,Math.floor(+$('orderQty').value||1)),m=+$('orderMultiplier').value||2.5,custom=$('orderCustomPrice').value.trim(),batch=$('orderMode').value==='batch'&&!orderIsOther();if(orderIsOther()){let description=$('otherDescription').value.trim(),unitPrice=Number(custom);if(!description||custom===''||!Number.isFinite(unitPrice)||unitPrice<0){alert('Para «Otro», escribe una descripción y un precio por unidad válido.');return}orderLines.push({productId:null,sku:'OTRO',name:description,description,qty,unitPrice,customPrice:unitPrice,mode:'other',cost:0,time:null,grams:0})}else{let p=selectedProduct();if(!p)return;let batchQty=Math.max(1,Number(p.batchQty||1)),suggestedUnit=priceFor(p,m)/batchQty,units=Math.max(1,Math.floor(+$('orderUnitsPerBatch').value||1)),suggestedBatch=suggestedUnit*units,price=custom===''?(batch?suggestedBatch:suggestedUnit):Number(custom);if(!Number.isFinite(price)||price<0){alert('Precio personalizado inválido.');return}let pieces=batch?qty*units:qty,unitPrice=batch?price/units:price;orderLines.push({productId:p.id,sku:p.sku,name:p.name,qty:pieces,unitPrice,multiplier:m,customPrice:custom!==''?price:null,mode:batch?'batch':'unit',batchCount:batch?qty:null,unitsPerBatch:batch?units:null,batchPrice:batch?price:null,cost:p.cost??p.total??0,time:!batch&&qty===1&&p.time!=null?p.time:null,grams:p.grams||0})}$('orderCustomPrice').value='';$('otherDescription').value='';renderOrderLines();hintOrderProduct()};
 $('amountPaid').oninput=calcOrderTotals;
 function resetOrderForm(){editingOrder=null;orderLines=[];['client','phone','dueDate','orderDescription'].forEach(id=>$(id).value='');$('priority').value='normal';$('orderStatus').value='pending';$('amountPaid').value=0;$('orderQty').value=1;$('orderUnitsPerBatch').value=2;$('orderMode').value='unit';$('orderCustomPrice').value='';$('otherDescription').value='';updateOrderModeUI();$('orderFormTitle').textContent='Nuevo pedido';$('saveOrder').textContent='Guardar pedido';renderOrderLines();refreshProductSelect()}
-$('newOrder').onclick=()=>{$('orderForm').classList.remove('hidden');resetOrderForm();$('client').focus()};
+$('newOrder').onclick=()=>{$('orderForm').classList.remove('hidden');resetOrderForm();$('orderClient').focus()};
 $('cancelOrder').onclick=()=>{$('orderForm').classList.add('hidden');resetOrderForm()};
 $('saveOrder').onclick=async()=>{
  const button=$('saveOrder'),message=$('orderMessage');
  if(button.disabled)return;
- const client=$('client').value.trim();
+ const client=$('orderClient').value.trim();
  if(!client){message.textContent='No se guardó: escribe el nombre del cliente.';return}
  if(!orderLines.length){message.textContent='No se guardó: agrega al menos un producto con “Agregar al pedido”.';return}
  const totals=calcOrderTotals();
@@ -767,7 +767,7 @@ function renderOrders(){let visible=orders.filter(o=>!o._deleted),active=visible
  $('ordersList').querySelectorAll('[data-edit-order]').forEach(b=>b.onclick=()=>editOrder(b.dataset.editOrder));
 }
 document.querySelectorAll('[data-orderview]').forEach(b=>b.onclick=()=>{orderView=b.dataset.orderview;renderOrders()});
-function editOrder(id){let o=orders.find(x=>x.id===id);editingOrder=id;orderLines=JSON.parse(JSON.stringify(o.lines));$('client').value=o.client;$('phone').value=o.phone;$('dueDate').value=o.dueDate;$('priority').value=o.priority;$('orderStatus').value=o.status==='delivered'?'ready':o.status;$('orderDescription').value=o.description;$('amountPaid').value=o.paid;$('orderFormTitle').textContent='Editar '+o.number;$('saveOrder').textContent='Guardar cambios';$('orderForm').classList.remove('hidden');refreshProductSelect();updateOrderModeUI();renderOrderLines();page('orders');$('orderForm').scrollIntoView({behavior:'smooth',block:'start'})}
+function editOrder(id){let o=orders.find(x=>x.id===id);editingOrder=id;orderLines=JSON.parse(JSON.stringify(o.lines));$('orderClient').value=o.client;$('phone').value=o.phone;$('dueDate').value=o.dueDate;$('priority').value=o.priority;$('orderStatus').value=o.status==='delivered'?'ready':o.status;$('orderDescription').value=o.description;$('amountPaid').value=o.paid;$('orderFormTitle').textContent='Editar '+o.number;$('saveOrder').textContent='Guardar cambios';$('orderForm').classList.remove('hidden');refreshProductSelect();updateOrderModeUI();renderOrderLines();page('orders');$('orderForm').scrollIntoView({behavior:'smooth',block:'start'})}
 
 // Biblioteca
 $('addModel').onclick=async()=>{let f=$('modelFile').files[0];if(!f){alert('Selecciona un archivo 3D.');return}try{await put('models',{id:crypto.randomUUID(),name:$('modelName').value.trim()||f.name,fileName:f.name,file:f});models=await all('models');$('modelFile').value='';$('modelName').value='';renderModels()}catch(e){alert('No se pudo guardar el modelo. Comprueba el espacio disponible.')}};
