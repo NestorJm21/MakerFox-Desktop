@@ -24,15 +24,16 @@ ipcMain.handle('makerfox:drenvio-save-token',async(_event,token)=>{
 });
 ipcMain.handle('makerfox:drenvio-token-status',async()=>{try{return {ok:true,configured:!!(await readDrenvioToken())}}catch(e){return {ok:false,error:e.message}}});
 ipcMain.handle('makerfox:drenvio-clear-token',async()=>{try{await fs.promises.rm(drenvioTokenPath(),{force:true});return {ok:true}}catch(e){return {ok:false,error:e.message}}});
+ipcMain.handle('makerfox:validate-postal',async(_event,postal)=>{try{const cp=String(postal||'').trim();if(!/^\\d{5}$/.test(cp))return {ok:false,error:'El código postal debe tener 5 dígitos.'};const response=await net.fetch('https://api.zippopotam.us/MX/'+cp);if(response.status===404)return {ok:false,error:'No encontramos ese código postal.'};if(!response.ok)return {ok:false,error:'El servicio postal respondió HTTP '+response.status};const data=await response.json(),place=data.places?.[0];if(!place)return {ok:false,error:'El servicio no devolvió localidad para ese CP.'};return {ok:true,city:place['place name']||'',state:place.state||''};}catch(e){return {ok:false,error:e?.cause?.code||e?.code||e.message||'Error de conexión'}}});
 ipcMain.handle('makerfox:drenvio-rate',async(_event,payload)=>{
  try{
   const token=await readDrenvioToken();if(!token)return {ok:false,error:'Primero guarda tu token Sandbox de DrEnvío en Ajustes.'};
   if(!payload?.originPostal||!payload?.destinationPostal||!Array.isArray(payload.packages)||!payload.packages.length)return {ok:false,error:'Faltan códigos postales o datos del paquete.'};
   const body={
    type:'National',
-   origin:{country:'MX',postalCode:String(payload.originPostal),city:payload.originCity||undefined},
-   destination:{country:'MX',postalCode:String(payload.destinationPostal),city:payload.destinationCity||undefined},
-   packages:payload.packages.map(p=>({weight:Number(p.weight),height:Number(p.height),width:Number(p.width),length:Number(p.length),volumetric:Number(p.volumetric||0),type:'box'})),
+   origin:{country:'MX',postal_code:String(payload.originPostal),city:payload.originCity||undefined},
+   destination:{country:'MX',postal_code:String(payload.destinationPostal),city:payload.destinationCity||undefined},
+   packages:payload.packages.map(p=>({weight:Number(p.weight),height:Number(p.height),width:Number(p.width),length:Number(p.length),volumetric:Number(p.volumetric||0),type:'box',main_weight:Number(p.weight)})),
    carriers:['jtexpress','quiken'],
    insurance:0
   };
