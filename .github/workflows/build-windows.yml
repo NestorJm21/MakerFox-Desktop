@@ -18,6 +18,9 @@ on:
       - "package.json"
       - "package-lock.json"
       - ".github/workflows/build-windows.yml"
+  pull_request:
+    branches:
+      - simplify/calculadora-catalogo
   workflow_dispatch:
 
 permissions:
