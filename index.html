@@ -342,7 +342,7 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 <div class="card"><h3>Catálogo MakerFox</h3><div class="stats"><div class="stat"><span class="muted small">Productos</span><strong id="total">0</strong></div><div class="stat"><span class="muted small">Precio promedio</span><strong id="average">$0</strong></div><div class="stat"><span class="muted small">Modelos asociados</span><strong id="withModel">0</strong></div></div><div style="margin-top:11px"><input id="search" placeholder="Buscar por colección, diseño o código..."></div><div style="margin-top:8px"><select id="filter"><option value="">Todas las categorías</option></select></div></div><div class="actions catalog-view-tools"><label class="small muted">Vista</label><button data-catalog-view="grid" title="Cuadrícula">▦</button><button data-catalog-view="large" title="Iconos grandes">▣</button><button data-catalog-view="list" title="Lista">☷</button><button data-catalog-view="details" title="Detalles">☰</button><button data-catalog-view="compact" title="Compacta">≡</button></div><div id="products" class="product-grid"></div>
 
 <div class="card" id="quoteWorkspace" style="margin-top:16px">
- <div class="orderhead"><div><h3>▣ Cotizador de pedidos</h3><p class="notice">Arma pedidos con varios productos del catálogo. El precio regular se selecciona por defecto; puedes ajustarlo por línea.</p></div><button id="quoteNew">Nuevo pedido</button></div>
+ <div class="orderhead"><div><h3>Cotización rápida</h3><p class="notice">Arma pedidos con varios productos del catálogo. El precio regular se selecciona por defecto; puedes ajustarlo por línea.</p></div><button id="qNew">Nuevo pedido</button></div>
  <div class="grid" style="grid-template-columns:1.2fr .8fr">
   <div class="stack">
    <div class="card"><h3>Agregar productos</h3><div class="fields">
@@ -370,15 +370,15 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
     <div class="row"><span class="muted">Peso facturable estimado</span><b id="qBillWeight">0 g</b></div>
    </div>
    <div class="card"><h3>Envío manual</h3><div class="fields">
-    <div><label>Modalidad de cotización</label><select id="qShipMode"><option value="manual">Costo manual de paquetería</option><option value="tariff">Estimación con tarifa guardada</option></select></div>
+    <input id="qShipMode" type="hidden" value="manual">
     <div><label>Paquetería / servicio</label><input id="qCarrier" placeholder="Ej. Estafeta, DHL, Paquetexpress"></div>
-    <div><label>Costo base de tarifa ($)</label><input id="qBaseRate" type="number" min="0" step=".01" value="0"></div>
-    <div><label>Costo por kg facturable ($)</label><input id="qPerKgRate" type="number" min="0" step=".01" value="0"></div>
-    <div><label>Costo manual / cotizado ($)</label><input id="qManualShipping" type="number" min="0" step=".01" value="0"></div>
+    <input id="qBaseRate" type="hidden" value="0">
+    <input id="qPerKgRate" type="hidden" value="0">
+    <div><label>Costo de envío ($)</label><input id="qManualShipping" type="number" min="0" step=".01" value="0"></div>
     <div><label>¿Quién paga el envío?</label><select id="qPayer"><option value="customer">Cliente paga el envío</option><option value="makerfox">MakerFox absorbe el envío</option><option value="split">Compartido</option></select></div>
     <div><label>Parte que paga MakerFox ($)</label><input id="qMakerShare" type="number" min="0" step=".01" value="0"></div>
     <div><label>Parte que paga el cliente ($)</label><input id="qCustomerShare" type="number" min="0" step=".01" value="0"></div>
-   </div><p class="notice" id="qShipNote">La tarifa guardada es una estimación local, no una cotización en tiempo real de la paquetería. Para tarifas oficiales se necesitará integrar la API de cada proveedor y sus credenciales.</p></div>
+   </div><p class="notice" id="qShipNote">El costo de envío se consulta fuera de MakerFox y se captura manualmente.</p></div>
    <div class="price"><div class="small">TOTAL A COBRAR AL CLIENTE</div><strong id="qGrandTotal">$0.00</strong><div class="notice">Productos + parte del envío a cargo del cliente. MakerFox absorbe: <b id="qMakerCost">$0.00</b></div></div>
    <div class="actions"><button class="primary" id="qSaveQuote">Guardar cotización</button><button id="qCopyQuote">Copiar resumen</button><button id="qNew">Nueva cotización</button></div>
    <div id="qSavedQuotes"></div>
