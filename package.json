@@ -1,6 +1,6 @@
 {
   "name": "makerfox-studio",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "MakerFox Studio - Costeo rentable y catálogo de impresión 3D",
   "main": "main.js",
   "author": "MakerFox",
