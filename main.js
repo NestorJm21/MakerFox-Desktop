@@ -40,10 +40,18 @@ ipcMain.handle('makerfox:envia-geocode', async (_event, postalCode)=>{
   try{
     const cp=String(postalCode||'').replace(/\D/g,'');
     if(!/^\d{5}$/.test(cp)) return {ok:false,error:'Captura un código postal de 5 dígitos.'};
-    const response=await fetch('https://geocodes.envia.com/zipcode/MX/'+cp);
-    const data=await response.json();
-    if(!response.ok||data.success===false) return {ok:false,error:data.message||'No se encontró el código postal.'};
-    return {ok:true,data:data.data||data};
+    const response=await fetch('https://geocodes.envia.com/zipcode/MX/'+cp,{headers:{'Accept':'application/json'}});
+    const raw=await response.text();
+    let body={};
+    try{body=JSON.parse(raw)}catch{return {ok:false,error:'Envia devolvió una respuesta que no es JSON (HTTP '+response.status+').'};}
+    if(!response.ok||body.success===false) return {ok:false,error:body.message||body.error||('Envia no pudo validar el CP (HTTP '+response.status+').')};
+    let item=body.data??body;
+    if(Array.isArray(item)) item=item[0]||{};
+    if(item?.data) item=Array.isArray(item.data)?(item.data[0]||{}):item.data;
+    const city=item.city||item.locality||item.municipality||item.town||'';
+    const state=item.state||item.stateCode||item.province||'';
+    if(!city||!state) return {ok:false,error:'Envia respondió sin ciudad o estado. Campos recibidos: '+Object.keys(item||{}).join(', ')+'. Revisa el CP o captura ciudad y estado manualmente.'};
+    return {ok:true,data:{...item,city,state,postalCode:item.postalCode||item.zipcode||cp}};
   }catch(e){return {ok:false,error:e.message||'No se pudo validar el código postal.'};}
 });
 ipcMain.handle('makerfox:envia-rate', async (_event, payload)=>{
