@@ -11,7 +11,7 @@ function sendUpdateStatus(status, message, extra = {}) {
   if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('makerfox:update-status', { status, message, ...extra });
 }
 function createWindow(){
- mainWindow = new BrowserWindow({width:1450,height:940,minWidth:900,minHeight:650,backgroundColor:'#101114',title:'MakerFox 1.2.3',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
+ mainWindow = new BrowserWindow({width:1450,height:940,minWidth:900,minHeight:650,backgroundColor:'#101114',title:'MakerFox Studio 2.0.0',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
  mainWindow.loadURL('makerfox://app/index.html');
  mainWindow.on('closed',()=>{mainWindow=null;});
 }
@@ -21,7 +21,7 @@ ipcMain.handle('makerfox:open-model', async (_event,payload)=>{
   const extension=path.extname(payload.fileName).toLowerCase(),allowed=new Set(['.3mf','.stl','.obj','.step','.stp']);
   if(!allowed.has(extension))return {ok:false,error:'Formato no admitido.'};
   const safeName=path.basename(payload.fileName).replace(/[<>:"/\\|?*]/g,'_');
-  const dir=path.join(app.getPath('temp'),'MakerFox-opened-models');await fs.promises.mkdir(dir,{recursive:true});
+  const dir=path.join(app.getPath('temp'),'MakerFoxStudio-opened-models');await fs.promises.mkdir(dir,{recursive:true});
   const dest=path.join(dir,`${Date.now()}-${safeName}`);await fs.promises.writeFile(dest,Buffer.from(payload.buffer));
   const error=await shell.openPath(dest);if(error)return {ok:false,error};
   return {ok:true};
