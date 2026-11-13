@@ -599,6 +599,39 @@ function renderProducts(){
 
  $('products').querySelectorAll('[data-custom-save]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.customSave),v=Number($('products').querySelector(`[data-custom-input="${p.id}"]`).value);if(!Number.isFinite(v)||v<=0){alert('Introduce un precio personalizado mayor que cero.');return}p.customPrice=v;p.updated=new Date().toISOString();await put('products',p);products=await all('products');renderProducts()});
 }
+
+function startVariantForProduct(id){
+ const parent=products.find(p=>p.id===id);if(!parent)return;
+ clearCalc();$('variantTargetWrap').classList.remove('hidden');
+ $('variantTarget').innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.sku)+'</option>').join('');
+ $('variantTarget').value=parent.id;$('name').value=parent.name+' - Variante';
+ $('collectionName').value=parent.collectionName||'';$('category').value=parent.category||$('category').value;
+ $('variantTargetMessage').textContent='Calcula esta presentación con sus propios gramos, tiempo, costos y archivo 3MF.';
+ page('calc');$('name').focus();
+}
+$('showVariantTarget').onclick=()=>{
+ $('variantTarget').innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.sku)+'</option>').join('');
+ $('variantTargetWrap').classList.toggle('hidden');
+ if(!products.length)$('variantTargetMessage').textContent='Primero crea un producto principal en el catálogo.';
+};
+$('cancelVariant').onclick=()=>$('variantTargetWrap').classList.add('hidden');
+$('saveVariant').onclick=async()=>{
+ const parent=products.find(p=>p.id===$('variantTarget').value),label=$('name').value.trim();
+ if(!parent){$('variantTargetMessage').textContent='Selecciona un producto principal válido.';return}
+ if(!label||calc.cost<=0||calc.totalGrams<=0){$('variantTargetMessage').textContent='Completa el nombre, gramos y costos válidos en la calculadora.';return}
+ const file=$('model').files[0],oldPhoto=$('photo').files[0];
+ const v={id:crypto.randomUUID(),label,name:label,size:'',quality:'',mode:calc.mode,batchQty:calc.qty,
+ grams:calc.unitGrams,batchGrams:calc.totalGrams,time:calc.unitTime,batchTime:calc.totalTime,
+ cost:calc.unitCost,totalCost:calc.cost,price:calc.unitPrice,batchPrice:calc.batchPrice,
+ wholesale:calc.unitWholesale,batchCosts:{material:calc.material,electric:calc.electric,wear:calc.wear,labor:calc.labor,extras:calc.extras,packaging:calc.packaging,shipping:calc.shipping,overhead:calc.overhead},
+ priceBreakdown:{cost:calc.cost,costRecovery:calc.costRecovery,wholesale:calc.wholesale,regular:calc.regular,feePercent:calc.feePercent,unitProfit:calc.unitProfit},
+ calcData:{hours:$('hours').value,minutes:$('minutes').value,grams:$('grams').value,assembly:$('assembly').value,work:$('work').value,extras:$('extras').value,packaging:$('packaging').value,shipping:$('shipping').value},
+ photo:oldPhoto||null,photoName:oldPhoto?.name||'',model:file||null,modelName:file?.name||'',updated:new Date().toISOString()};
+ parent.variants=Array.isArray(parent.variants)?parent.variants:[];
+ parent.variants.push(v);parent.updated=new Date().toISOString();
+ try{await put('products',parent);products=await all('products');if(cloudUser)cloudWriteProduct(parent).catch(e=>cloudMsg('Variante guardada localmente; pendiente de sincronizar: '+e.message,'Pendiente'));$('variantTargetMessage').textContent='Variante guardada dentro de '+parent.name+'.';$('message').textContent='Variante guardada correctamente.';clearCalc();page('catalog');renderProducts();initQuoteUI()}
+ catch(e){$('variantTargetMessage').textContent='No se pudo guardar la variante: '+e.message}
+};
 function editProduct(id){let p=products.find(x=>x.id===id);editingProduct=id;$('name').value=p.name;$('collectionName').value=p.collectionName||'';$('category').value=p.category;$('filamentSelect').value=p.filamentId||settings.filaments?.[0]?.id||'';$('color').value=p.color||'';$('description').value=p.description||'';$('calcMode').value=p.mode||'unit';$('batchQty').value=p.batchQty||2;let raw=p.calcData||{hours:p.time==null?0:Math.floor(p.time),minutes:p.time==null?0:Math.round((p.time%1)*60),grams:p.grams||0,assembly:0,work:0,extras:p.extras||0,packaging:0,shipping:0};$('hours').value=raw.hours??0;$('minutes').value=raw.minutes??0;$('grams').value=raw.grams??p.grams??0;$('assembly').value=raw.assembly??0;$('work').value=raw.work??0;$('extras').value=raw.extras??0;$('packaging').value=raw.packaging??0;$('shipping').value=raw.shipping??0;$('save').textContent='Guardar cambios';modeUI();page('calc')}
 $('search').oninput=renderProducts;$('filter').onchange=renderProducts;
 
