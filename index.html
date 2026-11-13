@@ -870,10 +870,10 @@ envia$('qGetEnviaRates')?.addEventListener('click',async()=>{
  msg.textContent='Consultando tarifas en Envia...';
  const r=await window.makerfoxDesktop?.enviaRate(payload);
  if(!r?.ok){msg.textContent='No se pudo cotizar: '+(r?.error||'API no disponible');return}
- if(!r.rates?.length){msg.textContent='Envia no devolvió tarifas para Estafeta o Paquetexpress en esta ruta. Puedes usar el costo manual.';return}
+ if(!r.rates?.length){msg.textContent='Sin tarifas disponibles: '+(r.diagnostic||'Envia no encontró servicios para esta ruta.')+' Puedes usar el costo manual.';return}
  out.innerHTML=r.rates.map((x,i)=>'<div class="row" style="gap:12px;align-items:center"><div style="flex:1"><b>'+esc(x.carrier)+' · '+esc(x.serviceDescription||x.service)+'</b><div class="small muted">'+esc(x.deliveryEstimate||'Entrega no especificada')+'</div></div><b>'+quoteMoney(x.totalPrice)+' '+esc(x.currency)+'</b><button data-envia-rate="'+i+'">Usar tarifa</button></div>').join('');
  out.querySelectorAll('[data-envia-rate]').forEach(b=>b.addEventListener('click',()=>{const x=r.rates[Number(b.dataset.enviaRate)];envia$('qCarrier').value=x.carrier+' · '+(x.serviceDescription||x.service);envia$('qManualShipping').value=x.totalPrice.toFixed(2);envia$('qShipMode').value='manual';calcQuote();msg.textContent='Tarifa seleccionada. Verifica el importe en sucursal antes de confirmar el envío.';}));
- msg.textContent='Se encontraron '+r.rates.length+' servicios. Selecciona uno para agregarlo a la cotización.';
+ msg.textContent='Envia devolvió '+r.rates.length+' servicios disponibles. Revisa si aparece Estafeta o Paquetexpress y selecciona una tarifa.';
 });
 enviaLoadSettings();
 
