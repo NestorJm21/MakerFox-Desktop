@@ -1,4 +1,5 @@
 name: Build MakerFox Studio Windows installer
+# Test branch build includes the latest catalog and collection fixes.
 
 on:
   push:
