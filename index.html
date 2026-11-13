@@ -915,7 +915,7 @@ envia$('enviaSaveOrigin')?.addEventListener('click',()=>{
  localStorage.setItem('makerfoxEnviaOrigin',JSON.stringify(d));envia$('enviaOriginMessage').textContent='Datos del remitente guardados en este equipo.';
 });
 envia$('qValidateDestination')?.addEventListener('click',()=>enviaValidatePostal('qDestPostal','qDestCity','qDestState','qEnviaMessage'));
-envia$('qGetEnviaRates')?.addEventListener('click',async()=>{
+envia$('qGetEnviaRatesEnvia')?.addEventListener('click',async()=>{
  const out=envia$('qEnviaRates'),msg=envia$('qEnviaMessage');out.innerHTML='';
  const origin=JSON.parse(localStorage.getItem('makerfoxEnviaOrigin')||'{}');
  const requiredOrigin=['name','phone','street','city','state','postal'],requiredDest=['qDestName','qDestPhone','qDestStreet','qDestCity','qDestState','qDestPostal'];
