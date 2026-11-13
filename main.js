@@ -48,9 +48,11 @@ ipcMain.handle('makerfox:envia-geocode', async (_event, postalCode)=>{
     let item=body.data??body;
     if(Array.isArray(item)) item=item[0]||{};
     if(item?.data) item=Array.isArray(item.data)?(item.data[0]||{}):item.data;
-    const city=item.city||item.locality||item.municipality||item.town||'';
-    const state=item.state||item.stateCode||item.province||'';
-    if(!city||!state) return {ok:false,error:'Envia respondió sin ciudad o estado. Campos recibidos: '+Object.keys(item||{}).join(', ')+'. Revisa el CP o captura ciudad y estado manualmente.'};
+    const cityValue=item.city||item.locality||item.municipality||item.town||'';
+    const stateValue=item.state||item.stateCode||item.province||'';
+    const city=typeof cityValue==='string'?cityValue:(cityValue?.name||cityValue?.city||cityValue?.label||'');
+    const state=typeof stateValue==='string'?stateValue:(stateValue?.name||stateValue?.state||stateValue?.stateName||stateValue?.label||stateValue?.description||'');
+    if(!city||!state) return {ok:false,error:'Envia respondió sin ciudad o estado legible. Revisa el CP o captura ciudad y estado manualmente.'};
     return {ok:true,data:{...item,city,state,postalCode:item.postalCode||item.zipcode||cp}};
   }catch(e){return {ok:false,error:e.message||'No se pudo validar el código postal.'};}
 });
