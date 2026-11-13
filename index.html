@@ -592,7 +592,7 @@ function renderProducts(){
  $('products').querySelectorAll('[data-variant-toggle]').forEach(b=>b.onclick=()=>{let form=$('variant-form-'+b.dataset.variantToggle);form.classList.toggle('hidden');form.querySelector('[data-v-label]').focus()});
  $('products').querySelectorAll('[data-v-cancel]').forEach(b=>b.onclick=()=>{$('variant-form-'+b.dataset.vCancel).classList.add('hidden')});
  $('products').querySelectorAll('[data-v-save]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.vSave),form=$('variant-form-'+p.id),label=form.querySelector('[data-v-label]').value.trim(),file=form.querySelector('[data-v-file]').files[0],idx=form.dataset.editIndex,old=idx!==undefined?(p.variants||[])[Number(idx)]:null;if(!label){form.querySelector('[data-v-message]').textContent='Escribe una etiqueta para identificar la variante.';return}if(file&&!file.name.toLowerCase().endsWith('.3mf')){form.querySelector('[data-v-message]').textContent='Solo se permiten archivos .3MF.';return}let v={id:old?.id||crypto.randomUUID(),label,name:label,size:form.querySelector('[data-v-size]').value.trim(),quality:form.querySelector('[data-v-quality]').value.trim(),cost:Math.max(0,Number(form.querySelector('[data-v-cost]').value)||0),price:Math.max(0,Number(form.querySelector('[data-v-price]').value)||0),model:file||old?.model||null,modelName:file?.name||old?.modelName||'',updated:new Date().toISOString()};p.variants=Array.isArray(p.variants)?p.variants:[];if(old)p.variants[Number(idx)]=v;else p.variants.push(v);p.updated=new Date().toISOString();await put('products',p);products=await all('products');renderProducts()});
- $('products').querySelectorAll('[data-v-edit]').forEach(b=>b.onclick=()=>{let p=products.find(x=>x.id===b.dataset.vEdit),v=p.variants[Number(b.dataset.vIndex)],form=$('variant-form-'+p.id);form.classList.remove('hidden');form.dataset.editIndex=b.dataset.vIndex;form.querySelector('[data-v-label]').value=v.label||v.name||'';form.querySelector('[data-v-size]').value=v.size||'';form.querySelector('[data-v-quality]').value=v.quality||'';form.querySelector('[data-v-cost]').value=v.cost||0;form.querySelector('[data-v-price]').value=v.price||0;form.querySelector('[data-v-message]').textContent=v.modelName?'Archivo actual: '+v.modelName+'. Si no seleccionas otro, se conserva.':'';form.querySelector('[data-v-save]').textContent='Guardar cambios'});
+ $('products').querySelectorAll('[data-v-edit]').forEach(b=>b.onclick=()=>startEditVariant(b.dataset.vEdit,Number(b.dataset.vIndex)));
  $('products').querySelectorAll('[data-v-delete]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.vDelete);if(!confirm('¿Eliminar esta variante?'))return;p.variants.splice(Number(b.dataset.vIndex),1);await put('products',p);products=await all('products');renderProducts()});
  $('products').querySelectorAll('[data-v-open]').forEach(b=>b.onclick=()=>{let p=products.find(x=>x.id===b.dataset.vOpen),v=p.variants[Number(b.dataset.vIndex)];openInBambu(v.model,v.modelName)});
  $('products').querySelectorAll('[data-v-download]').forEach(b=>b.onclick=()=>{let p=products.find(x=>x.id===b.dataset.vDownload),v=p.variants[Number(b.dataset.vIndex)];download(v.model,v.modelName)});
@@ -600,7 +600,17 @@ function renderProducts(){
  $('products').querySelectorAll('[data-custom-save]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.customSave),v=Number($('products').querySelector(`[data-custom-input="${p.id}"]`).value);if(!Number.isFinite(v)||v<=0){alert('Introduce un precio personalizado mayor que cero.');return}p.customPrice=v;p.updated=new Date().toISOString();await put('products',p);products=await all('products');renderProducts()});
 }
 
-function startVariantForProduct(id){
+let editingVariantRef=null;
+function startEditVariant(parentId,index){
+ const parent=products.find(p=>p.id===parentId),v=parent?.variants?.[index];if(!parent||!v)return;
+ clearCalc();editingVariantRef={parentId,index};
+ $('variantTargetWrap').classList.remove('hidden');$('variantTarget').innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.sku)+'</option>').join('');$('variantTarget').value=parent.id;
+ $('name').value=v.label||v.name||'Variante';$('collectionName').value=parent.collectionName||'';$('category').value=parent.category||$('category').value;
+ $('calcMode').value=v.mode||'unit';$('batchQty').value=v.batchQty||2;
+ const d=v.calcData||{};$('hours').value=d.hours??Math.floor(v.time||0);$('minutes').value=d.minutes??Math.round(((v.time||0)%1)*60);$('grams').value=d.grams??v.grams??0;$('assembly').value=d.assembly??0;$('work').value=d.work??0;$('extras').value=d.extras??0;$('packaging').value=d.packaging??0;$('shipping').value=d.shipping??0;
+ modeUI();readCost();$('variantTargetMessage').textContent='Editando variante de '+parent.name+'. Si no seleccionas otro archivo, se conserva el archivo 3MF actual.';page('calc');
+}
+function startVariantForProduct(id){editingVariantRef=null;
  const parent=products.find(p=>p.id===id);if(!parent)return;
  clearCalc();$('variantTargetWrap').classList.remove('hidden');
  $('variantTarget').innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · '+esc(p.sku)+'</option>').join('');
@@ -619,16 +629,16 @@ $('saveVariant').onclick=async()=>{
  const parent=products.find(p=>p.id===$('variantTarget').value),label=$('name').value.trim();
  if(!parent){$('variantTargetMessage').textContent='Selecciona un producto principal válido.';return}
  if(!label||calc.cost<=0||calc.totalGrams<=0){$('variantTargetMessage').textContent='Completa el nombre, gramos y costos válidos en la calculadora.';return}
- const file=$('model').files[0],oldPhoto=$('photo').files[0];
- const v={id:crypto.randomUUID(),label,name:label,size:'',quality:'',mode:calc.mode,batchQty:calc.qty,
+ const file=$('model').files[0],oldPhoto=$('photo').files[0],existing=editingVariantRef&&editingVariantRef.parentId===parent.id?parent.variants?.[editingVariantRef.index]:null;
+ const v={id:existing?.id||crypto.randomUUID(),label,name:label,size:existing?.size||'',quality:existing?.quality||'',mode:calc.mode,batchQty:calc.qty,
  grams:calc.unitGrams,batchGrams:calc.totalGrams,time:calc.unitTime,batchTime:calc.totalTime,
  cost:calc.unitCost,totalCost:calc.cost,price:calc.unitPrice,batchPrice:calc.batchPrice,
  wholesale:calc.unitWholesale,batchCosts:{material:calc.material,electric:calc.electric,wear:calc.wear,labor:calc.labor,extras:calc.extras,packaging:calc.packaging,shipping:calc.shipping,overhead:calc.overhead},
  priceBreakdown:{cost:calc.cost,costRecovery:calc.costRecovery,wholesale:calc.wholesale,regular:calc.regular,feePercent:calc.feePercent,unitProfit:calc.unitProfit},
  calcData:{hours:$('hours').value,minutes:$('minutes').value,grams:$('grams').value,assembly:$('assembly').value,work:$('work').value,extras:$('extras').value,packaging:$('packaging').value,shipping:$('shipping').value},
- photo:oldPhoto||null,photoName:oldPhoto?.name||'',model:file||null,modelName:file?.name||'',updated:new Date().toISOString()};
+ photo:oldPhoto||existing?.photo||null,photoName:oldPhoto?.name||existing?.photoName||'',model:file||existing?.model||null,modelName:file?.name||existing?.modelName||'',updated:new Date().toISOString()};
  parent.variants=Array.isArray(parent.variants)?parent.variants:[];
- parent.variants.push(v);parent.updated=new Date().toISOString();
+ if(existing)parent.variants[editingVariantRef.index]=v;else parent.variants.push(v);parent.updated=new Date().toISOString();
  try{await put('products',parent);products=await all('products');if(cloudUser)cloudWriteProduct(parent).catch(e=>cloudMsg('Variante guardada localmente; pendiente de sincronizar: '+e.message,'Pendiente'));$('variantTargetMessage').textContent='Variante guardada dentro de '+parent.name+'.';$('message').textContent='Variante guardada correctamente.';clearCalc();page('catalog');renderProducts();initQuoteUI()}
  catch(e){$('variantTargetMessage').textContent='No se pudo guardar la variante: '+e.message}
 };
