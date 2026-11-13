@@ -1,6 +1,6 @@
 {
   "name": "makerfox-studio",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MakerFox Studio - Costeo rentable y catálogo de impresión 3D",
   "main": "main.js",
   "author": "MakerFox",
@@ -35,13 +35,16 @@
             "x64"
           ]
         }
-      ]
+      ],
+      "icon": "assets/makerfox-studio-icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "installerIcon": "assets/makerfox-studio-icon.ico",
+      "uninstallerIcon": "assets/makerfox-studio-icon.ico"
     },
     "publish": [
       {
