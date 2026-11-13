@@ -519,7 +519,7 @@ function productPriceHTML(p){let qty=Math.max(1,Number(p.batchQty||1)),totalCost
 function quoteMoney(n){return money(Math.max(0,Number(n)||0))}
 function quoteProduct(){return products.find(p=>p.id===$('qProduct').value)}
 function quoteWeight(p){return Math.max(0,Number(p?.grams??(Number(p?.batchGrams||0)/Math.max(1,Number(p?.batchQty||1))))||0)}
-function quoteRegularPrice(p){let qty=Math.max(1,Number(p?.batchQty||1));return Math.max(0,Number(p?.customPrice??p?.price??p?.priceOptions?.regular??p?.batchPrice/qty??0))||0}
+function quoteRegularPrice(p){let qty=Math.max(1,Number(p?.batchQty||1));return Math.max(0,Number(p?.priceOptions?.regular??p?.price??(Number(p?.batchPrice||0)/qty)))||0}
 function initQuoteUI(){
  if(!$('qProduct'))return;
  const prev=$('qProduct').value;
