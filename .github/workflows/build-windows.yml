@@ -1,4 +1,4 @@
-name: Build and publish MakerFox Windows installer
+name: Build MakerFox Studio Windows installer
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - feature/v1.3.0-calculadora-inventario-cotizaciones
       - fix/pedidos-respaldo-operativo-1.3.5
       - simplify/calculadora-catalogo
+      - release/makerfox-studio-2.0.0
     tags:
       - "v*"
     paths:
@@ -52,7 +53,7 @@ jobs:
         if: startsWith(github.ref, 'refs/heads/')
         uses: actions/upload-artifact@v4
         with:
-          name: MakerFox-Desktop-Windows-v1.3.0-test
+          name: MakerFox-Studio-Windows-v2.0.0-test
           path: |
             dist/*.exe
             dist/*.blockmap
