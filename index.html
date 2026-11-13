@@ -462,6 +462,8 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+try{localStorage.removeItem('makerfoxEnviaOrigin')}catch{}
+
 (()=>{
 const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(Number(n)||0);
 let db,inventory=[],quoteLines=[],quoteBoxes=[],savedQuotes=[],settings={filament:279,filaments:[{id:"default-pla",name:"PLA Basic",price:279,note:"Filamento predeterminado"}],electric:4,watts:95,life:2880,parts:2500,labor:39.38,error:5,feePercent:0,regularMargin:66.67,wholesaleMargin:25,wholesaleMinQty:10,overheadPerUnit:0},products=[],models=[],orders=[],editingProduct=null,editingOrder=null,calc={},orderLines=[],orderView='active';
