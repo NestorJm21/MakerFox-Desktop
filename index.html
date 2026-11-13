@@ -599,7 +599,6 @@ function renderProducts(){
 
  $('products').querySelectorAll('[data-custom-save]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.customSave),v=Number($('products').querySelector(`[data-custom-input="${p.id}"]`).value);if(!Number.isFinite(v)||v<=0){alert('Introduce un precio personalizado mayor que cero.');return}p.customPrice=v;p.updated=new Date().toISOString();await put('products',p);products=await all('products');renderProducts()});
 }
-}
 function editProduct(id){let p=products.find(x=>x.id===id);editingProduct=id;$('name').value=p.name;$('collectionName').value=p.collectionName||'';$('category').value=p.category;$('filamentSelect').value=p.filamentId||settings.filaments?.[0]?.id||'';$('color').value=p.color||'';$('description').value=p.description||'';$('calcMode').value=p.mode||'unit';$('batchQty').value=p.batchQty||2;let raw=p.calcData||{hours:p.time==null?0:Math.floor(p.time),minutes:p.time==null?0:Math.round((p.time%1)*60),grams:p.grams||0,assembly:0,work:0,extras:p.extras||0,packaging:0,shipping:0};$('hours').value=raw.hours??0;$('minutes').value=raw.minutes??0;$('grams').value=raw.grams??p.grams??0;$('assembly').value=raw.assembly??0;$('work').value=raw.work??0;$('extras').value=raw.extras??0;$('packaging').value=raw.packaging??0;$('shipping').value=raw.shipping??0;$('save').textContent='Guardar cambios';modeUI();page('calc')}
 $('search').oninput=renderProducts;$('filter').onchange=renderProducts;
 
