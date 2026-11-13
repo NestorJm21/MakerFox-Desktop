@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MakerFox 1.2.7</title>
+<title>MakerFox · Calculadora y catálogo</title>
+<!-- Interfaz simplificada: herramientas esenciales -->
 <style>
 :root{color-scheme:dark;--bg:#101114;--panel:#181a1f;--panel2:#20232a;--line:#30343d;--text:#f4f4f5;--muted:#a1a1aa;--red:#e3262e;--gold:#f2b705}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px Segoe UI,Arial,sans-serif}
@@ -290,23 +291,27 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 #products.view-list,#products.view-compact{display:flex;flex-direction:column;gap:7px}#products.view-list .product,#products.view-compact .product{display:flex;align-items:center;gap:14px}#products.view-list .product>img,#products.view-list .product>.product-image{width:100px;height:100px;object-fit:cover;flex:0 0 100px}#products.view-compact .product>img,#products.view-compact .product>.product-image{width:48px;height:48px;object-fit:cover;flex:0 0 48px}#products.view-compact .product .muted,#products.view-compact .product .price{display:none}
 #products.view-details{display:block}#products.view-details .product{display:grid;grid-template-columns:60px 1fr;gap:12px;padding:9px;margin-bottom:5px}#products.view-details .product>img,#products.view-details .product>.product-image{width:60px;height:60px;object-fit:cover}#products.view-details .product .info{display:grid;grid-template-columns:1.2fr 1.5fr 1fr auto;align-items:center;gap:8px}#clientProducts.view-list{display:flex;flex-direction:column}#clientProducts.view-large{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 @media print{body{background:#fff!important;color:#111!important}.quote-print{font-family:Arial,sans-serif;color:#111;padding:32px}.quote-print table{width:100%;border-collapse:collapse;margin:24px 0}.quote-print th,.quote-print td{border-bottom:1px solid #ddd;padding:10px;text-align:left}.quote-print .total{text-align:right;font-size:20px;font-weight:bold}.quote-print .brand{font-size:25px;font-weight:bold;color:#d83b32}}
+
+/* Modo esencial: solo calculadora y catálogo visibles; los demás datos locales permanecen intactos. */
+.page:not(#calc):not(#catalog){display:none!important}
+#sideNav .nav-group-label{display:none!important}
+#sideNav{width:220px!important}
+header{margin-left:220px!important}
+main.wrap{margin-left:220px!important}
+body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!important}
+.settings-inline{margin-top:16px;background:rgba(24,28,39,.96);border:1px solid rgba(123,143,176,.18);border-radius:14px;padding:15px}
+.settings-inline summary{cursor:pointer;font-weight:750;color:#ff8069;padding:5px}
+.settings-inline[open] summary{margin-bottom:12px}
+@media(max-width:900px){#sideNav{width:78px!important}header{margin-left:78px!important}main.wrap{margin-left:78px!important}}
 </style></head><body>
 <header><div class="topbar-title"><div class="eyebrow">MAKERFOX WORKSPACE</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">Desktop · v1.3.0</span></header>
 <main class="wrap">
 <nav id="sideNav" aria-label="Navegación principal">
 <div class="sidebar-brand"><img src="assets/MakerFox-logo.png" alt="MakerFox" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><div class="sidebar-fallback">MF</div><div class="sidebar-brand-name">MAKER<span>FOX</span></div></div>
-<button id="sidebarToggle" class="sidebar-toggle" type="button" title="Contraer menú" aria-label="Contraer menú"><span class="toggle-glyph">‹</span><span class="nav-label">Contraer menú</span></button>
-<div class="nav-group-label">ESPACIO DE TRABAJO</div>
 <button class="active" data-page="calc" title="Calculadora"><span class="nav-icon">◈</span><span class="nav-label">Calculadora</span></button>
-<button data-page="inventory" title="Inventario"><span class="nav-icon">▣</span><span class="nav-label">Inventario</span></button><button data-page="client" title="Modo cliente"><span class="nav-icon">◎</span><span class="nav-label">Modo cliente / cotizar</span></button><button data-page="catalog" title="Catálogo"><span class="nav-icon">▦</span><span class="nav-label">Catálogo</span><span id="count" class="nav-count">0</span></button>
-<button data-page="orders" title="Pedidos"><span class="nav-icon">▤</span><span class="nav-label">Pedidos</span><span id="orderCount" class="nav-count">0</span></button>
-<button data-page="library" title="Modelos 3D"><span class="nav-icon">⬡</span><span class="nav-label">Modelos 3D</span></button>
-<div class="nav-group-label nav-bottom-label">ADMINISTRACIÓN</div>
-<button data-page="settings" title="Costos base"><span class="nav-icon">⚙</span><span class="nav-label">Costos base</span></button>
-<button data-page="appearance" title="Apariencia"><span class="nav-icon">✦</span><span class="nav-label">Apariencia</span></button>
-<button data-page="backup" title="Respaldo"><span class="nav-icon">↥</span><span class="nav-label">Respaldo</span></button>
-<button data-page="updates" title="Actualizador"><span class="nav-icon">⟳</span><span class="nav-label">Actualizador</span></button>
-<div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox Desktop · 1.3.0</span></div>
+<button data-page="catalog" title="Catálogo"><span class="nav-icon">▦</span><span class="nav-label">Catálogo</span><span id="count" class="nav-count">0</span></button>
+<span id="orderCount" hidden>0</span>
+<div class="sidebar-footer"><span class="status-dot"></span><span class="nav-label">MakerFox · Calculadora y catálogo</span></div>
 </nav>
 <section id="calc" class="page active">
 <div class="grid"><div class="stack">
@@ -330,7 +335,13 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 </div><div class="stack">
 <div class="card"><h3>05 · Multiplicadores de venta</h3><div class="fields"><button class="mult" data-m="2">×2</button><button class="mult active" data-m="2.5">×2.5</button><button class="mult" data-m="3">×3</button><button class="mult" data-m="3.5">×3.5</button><button class="mult" data-m="4">×4</button><button class="mult" data-m="5">×5</button></div><div style="margin-top:10px"><label>Multiplicador personalizado</label><input id="multiplier" type="number" step=".1" min=".1" value="2.5"></div></div>
 <div class="card"><h3>06 · Desglose de costos</h3><div id="breakdown"></div><div class="price"><div class="small" style="color:#ff8585;font-weight:bold">PRECIO SUGERIDO POR LOTE</div><strong id="price">$0.00</strong><div class="notice">Precio sugerido por unidad: <b id="unitPrice">$0.00</b></div><div class="notice" id="batchSummary"></div></div><div class="row"><span class="muted">Precio mayoreo ×2</span><b id="wholesale">$0.00</b></div><button class="primary" id="save" style="width:100%;margin-top:13px">Confirmar y guardar producto</button><button id="clear" style="width:100%;margin-top:8px">Limpiar</button><div class="notice" id="message">Confirma los datos antes de guardar.</div></div>
-</div></div></section>
+</div></div><details class="settings-inline"><summary>Costos base, categorías y filamentos</summary><div class="card"><h3>Costos base</h3><div class="fields">
+<div><label>Filamento ($/kg)</label><input id="sFilament" type="number" value="279"></div><div><label>Electricidad ($/kWh)</label><input id="sElectric" type="number" step=".01" value="3.16"></div>
+<div><label>Consumo (W)</label><input id="sWatts" type="number" value="95"></div><div><label>Vida útil (horas)</label><input id="sLife" type="number" value="2880"></div>
+<div><label>Repuestos ($)</label><input id="sParts" type="number" value="2500"></div><div><label>Mano de obra ($/hora)</label><input id="sLabor" type="number" value="50"></div>
+<div><label>Error (%)</label><input id="sError" type="number" value="10"></div><div><label>Multiplicador inicial</label><input id="sMultiplier" type="number" step=".1" value="2.5"></div>
+</div><button class="primary" id="saveSettings" style="margin-top:12px">Guardar costos base</button><p id="settingsMessage" class="notice"></p><div class="settings-section"><h3>Administrar categorías</h3><p class="notice">Agrega categorías y cambia sus nombres. Al eliminar una categoría con productos, podrás reasignarlos a otra.</p><div class="fields"><div><label>Nombre de categoría</label><input id="newCategoryName" placeholder="Ej. Accesorios"></div><div><label>Código corto (2–4 letras)</label><input id="newCategoryCode" maxlength="4" placeholder="AC"></div></div><div class="actions"><button class="primary" id="addCategory">+ Agregar categoría</button></div><div id="categoryList"></div></div><div class="settings-section"><h3>Catálogo de filamentos</h3><p class="notice">Agrega variantes con el nombre que quieras. El precio se captura por kilogramo y el comentario es opcional.</p><div class="fields"><div><label>Nombre del filamento</label><input id="newFilamentName" placeholder="PLA Matte Bambu · Verde"></div><div><label>Precio por kg ($)</label><input id="newFilamentPrice" type="number" min="0.01" step=".01" placeholder="279"></div><div style="grid-column:1/-1"><label>Comentario (opcional)</label><input id="newFilamentNote" placeholder="Marca, color, calidad..."></div></div><button class="primary" id="addFilament" style="margin-top:10px">+ Agregar filamento</button><div id="filamentList"></div></div></div></details>
+</section>
 
 <section id="catalog" class="page">
 <div class="card"><h3>Catálogo MakerFox</h3><div class="stats"><div class="stat"><span class="muted small">Productos</span><strong id="total">0</strong></div><div class="stat"><span class="muted small">Precio promedio</span><strong id="average">$0</strong></div><div class="stat"><span class="muted small">Modelos asociados</span><strong id="withModel">0</strong></div></div><div style="margin-top:11px"><input id="search" placeholder="Buscar por nombre o código..."></div><div style="margin-top:8px"><select id="filter"><option value="">Todas las categorías</option></select></div></div><div class="actions catalog-view-tools"><label class="small muted">Vista</label><button data-catalog-view="grid" title="Cuadrícula">▦</button><button data-catalog-view="large" title="Iconos grandes">▣</button><button data-catalog-view="list" title="Lista">☷</button><button data-catalog-view="details" title="Detalles">☰</button><button data-catalog-view="compact" title="Compacta">≡</button></div><div id="products" class="product-grid"></div>
@@ -367,12 +378,7 @@ body[data-accent] button.primary{background:linear-gradient(135deg,var(--mf-neon
 
 <section id="backup" class="page"><div class="card"><h3>Respaldo completo</h3><p class="notice">Incluye productos, fotografías, modelos, pedidos, estados de pago y configuración.</p><div class="stats"><div class="stat"><span class="muted small">Productos</span><strong id="backupProducts">0</strong></div><div class="stat"><span class="muted small">Modelos</span><strong id="backupModels">0</strong></div><div class="stat"><span class="muted small">Pedidos</span><strong id="backupOrders">0</strong></div></div><button class="primary" id="exportBackup" style="margin-top:13px">Descargar respaldo completo</button><hr style="border-color:var(--line);margin:18px 0"><h3>Restaurar respaldo</h3><label>Archivo JSON de MakerFox</label><input id="restoreFile" type="file" accept=".json,application/json"><button id="restore" style="margin-top:10px">Restaurar (reemplaza los datos actuales)</button><div class="notice" id="backupMessage"></div></div></section>
 
-<section id="settings" class="page"><div class="card"><h3>Costos base</h3><div class="fields">
-<div><label>Filamento ($/kg)</label><input id="sFilament" type="number" value="279"></div><div><label>Electricidad ($/kWh)</label><input id="sElectric" type="number" step=".01" value="3.16"></div>
-<div><label>Consumo (W)</label><input id="sWatts" type="number" value="95"></div><div><label>Vida útil (horas)</label><input id="sLife" type="number" value="2880"></div>
-<div><label>Repuestos ($)</label><input id="sParts" type="number" value="2500"></div><div><label>Mano de obra ($/hora)</label><input id="sLabor" type="number" value="50"></div>
-<div><label>Error (%)</label><input id="sError" type="number" value="10"></div><div><label>Multiplicador inicial</label><input id="sMultiplier" type="number" step=".1" value="2.5"></div>
-</div><button class="primary" id="saveSettings" style="margin-top:12px">Guardar costos base</button><p id="settingsMessage" class="notice"></p><div class="settings-section"><h3>Administrar categorías</h3><p class="notice">Agrega categorías y cambia sus nombres. Al eliminar una categoría con productos, podrás reasignarlos a otra.</p><div class="fields"><div><label>Nombre de categoría</label><input id="newCategoryName" placeholder="Ej. Accesorios"></div><div><label>Código corto (2–4 letras)</label><input id="newCategoryCode" maxlength="4" placeholder="AC"></div></div><div class="actions"><button class="primary" id="addCategory">+ Agregar categoría</button></div><div id="categoryList"></div></div><div class="settings-section"><h3>Catálogo de filamentos</h3><p class="notice">Agrega variantes con el nombre que quieras. El precio se captura por kilogramo y el comentario es opcional.</p><div class="fields"><div><label>Nombre del filamento</label><input id="newFilamentName" placeholder="PLA Matte Bambu · Verde"></div><div><label>Precio por kg ($)</label><input id="newFilamentPrice" type="number" min="0.01" step=".01" placeholder="279"></div><div style="grid-column:1/-1"><label>Comentario (opcional)</label><input id="newFilamentNote" placeholder="Marca, color, calidad..."></div></div><button class="primary" id="addFilament" style="margin-top:10px">+ Agregar filamento</button><div id="filamentList"></div></div></div></section>
+
 
 
 <section id="appearance" class="page">
