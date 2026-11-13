@@ -38,8 +38,8 @@ ipcMain.handle('makerfox:envia-clear-token', async ()=>{
 });
 ipcMain.handle('makerfox:envia-geocode', async (_event, postalCode)=>{
   try{
-    const cp=String(postalCode||'').replace(/\\D/g,'');
-    if(!/^\\d{5}$/.test(cp)) return {ok:false,error:'Captura un código postal de 5 dígitos.'};
+    const cp=String(postalCode||'').replace(/\D/g,'');
+    if(!/^\d{5}$/.test(cp)) return {ok:false,error:'Captura un código postal de 5 dígitos.'};
     const response=await fetch('https://geocodes.envia.com/zipcode/MX/'+cp);
     const data=await response.json();
     if(!response.ok||data.success===false) return {ok:false,error:data.message||'No se encontró el código postal.'};
