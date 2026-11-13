@@ -45,7 +45,7 @@ jobs:
         run: |
           node -e "const fs=require('fs'),vm=require('vm'),html=fs.readFileSync('index.html','utf8'),a=html.indexOf('<script>')+8,b=html.indexOf('</script>',a);if(a<8||b<0)throw Error('Script not found');new vm.Script(html.slice(a,b));console.log('index.html JavaScript syntax OK')"
       - name: Build installer for branch validation
-        if: startsWith(github.ref, 'refs/heads/')
+        if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/')
         run: npm run dist -- --publish never
       - name: Publish GitHub Release and updater files
         if: startsWith(github.ref, 'refs/tags/v')
@@ -53,7 +53,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload test installer artifact
-        if: startsWith(github.ref, 'refs/heads/')
+        if: github.event_name == 'pull_request' || startsWith(github.ref, 'refs/heads/')
         uses: actions/upload-artifact@v4
         with:
           name: MakerFox-Studio-Windows-v2.0.1-test
