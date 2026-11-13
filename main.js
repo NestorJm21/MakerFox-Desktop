@@ -94,6 +94,39 @@ ipcMain.handle('makerfox:envia-rate', async (_event, payload)=>{
   }catch(e){return {ok:false,error:e.message||'No se pudo consultar Envia.'};}
 });
 
+
+const drenvioTokenPath=()=>path.join(app.getPath('userData'),'drenvio-token.enc');
+async function readDrenvioToken(){
+ try{if(!safeStorage.isEncryptionAvailable())throw new Error('El cifrado seguro de Windows no está disponible.');const encrypted=await fs.promises.readFile(drenvioTokenPath());return safeStorage.decryptString(encrypted)}
+ catch(e){if(e.code==='ENOENT')return '';throw e}
+}
+ipcMain.handle('makerfox:drenvio-save-token',async(_event,token)=>{
+ try{if(!safeStorage.isEncryptionAvailable())return {ok:false,error:'El cifrado seguro de Windows no está disponible.'};if(typeof token!=='string'||token.trim().length<10)return {ok:false,error:'Introduce un token de prueba válido.'};await fs.promises.writeFile(drenvioTokenPath(),safeStorage.encryptString(token.trim()),{mode:0o600});return {ok:true}}
+ catch(e){return {ok:false,error:e.message||'No se pudo guardar el token.'}}
+});
+ipcMain.handle('makerfox:drenvio-token-status',async()=>{try{return {ok:true,configured:!!(await readDrenvioToken())}}catch(e){return {ok:false,error:e.message}}});
+ipcMain.handle('makerfox:drenvio-clear-token',async()=>{try{await fs.promises.rm(drenvioTokenPath(),{force:true});return {ok:true}}catch(e){return {ok:false,error:e.message}}});
+ipcMain.handle('makerfox:drenvio-rate',async(_event,payload)=>{
+ try{
+  const token=await readDrenvioToken();if(!token)return {ok:false,error:'Primero guarda tu token Sandbox de DrEnvío en Ajustes.'};
+  if(!payload?.originPostal||!payload?.destinationPostal||!Array.isArray(payload.packages)||!payload.packages.length)return {ok:false,error:'Faltan códigos postales o datos del paquete.'};
+  const body={
+   type:'National',
+   origin:{country:'MX',postal_code:String(payload.originPostal),city:payload.originCity||undefined},
+   destination:{country:'MX',postal_code:String(payload.destinationPostal),city:payload.destinationCity||undefined},
+   packages:payload.packages.map(p=>({weight:Number(p.weight),height:Number(p.height),width:Number(p.width),length:Number(p.length),volumetric:Number(p.volumetric||0),type:'box',main_weight:Number(p.weight)})),
+   carriers:['jtexpress','quiken'],
+   insurance:0
+  };
+  const response=await fetch('https://sandbox.api-drenvio.com/v2/shipments/rate',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
+  const raw=await response.text();let data;try{data=JSON.parse(raw)}catch{return {ok:false,error:'DrEnvío Sandbox devolvió una respuesta no válida (HTTP '+response.status+').'};}
+  if(!response.ok)return {ok:false,error:data.message||data.error||JSON.stringify(data.errors||data)||('Error HTTP '+response.status)};
+  const list=Array.isArray(data)?data:(Array.isArray(data.data)?data.data:(Array.isArray(data.rates)?data.rates:[]));
+  const rates=list.map(x=>({carrier:x.carrier||'Transportista',service:x.service||x.service_id||'Servicio',serviceDescription:x.service_id||x.service||'Servicio',totalPrice:Number(x.price??x.totalPrice??0),currency:x.currency||'MXN',deliveryEstimate:x.days||'No especificado',serviceId:x.service_id||'',shippingId:x.ShippingId||x.shipping_id||''})).filter(x=>Number.isFinite(x.totalPrice)&&x.totalPrice>0);
+  return {ok:true,rates,diagnostic:rates.length?'':'Sandbox únicamente simula servicios JTExpress y Quiken. No devolvió tarifas para estos datos.'};
+ }catch(e){return {ok:false,error:e.message||'No se pudo consultar DrEnvío.'}}
+});
+
 function createWindow(){
  mainWindow = new BrowserWindow({width:1450,height:940,minWidth:900,minHeight:650,backgroundColor:'#101114',title:'MakerFox Studio 2.0.0',autoHideMenuBar:true,webPreferences:{preload:path.join(__dirname,'preload.js'),contextIsolation:true,nodeIntegration:false,sandbox:true}});
  mainWindow.loadURL('makerfox://app/index.html');
