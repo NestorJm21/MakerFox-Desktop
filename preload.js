@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('makerfoxDesktop',{
  drenvioTokenStatus:()=>ipcRenderer.invoke('makerfox:drenvio-token-status'),
  drenvioClearToken:()=>ipcRenderer.invoke('makerfox:drenvio-clear-token'),
  drenvioRate:(payload)=>ipcRenderer.invoke('makerfox:drenvio-rate',payload),
+ validatePostal:(postal)=>ipcRenderer.invoke('makerfox:validate-postal',postal),
  checkUpdates:()=>ipcRenderer.invoke('makerfox:check-updates'),
  installUpdate:()=>ipcRenderer.invoke('makerfox:install-update'),
  onUpdateStatus:(callback)=>ipcRenderer.on('makerfox:update-status',(_event,data)=>callback(data))
