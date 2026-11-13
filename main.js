@@ -61,28 +61,36 @@ ipcMain.handle('makerfox:envia-rate', async (_event, payload)=>{
     const token=await readEnviaToken();
     if(!token) return {ok:false,error:'Primero configura tu token de Envia en Ajustes.'};
     if(!payload||!payload.origin||!payload.destination||!Array.isArray(payload.packages)||!payload.packages.length) return {ok:false,error:'Faltan datos de origen, destino o paquete.'};
-    const carriers=['estafeta','paquetexpress'];
-    const results=await Promise.allSettled(carriers.map(async carrier=>{
-      const response=await fetch('https://api.envia.com/ship/rate/',{
-        method:'POST',
-        headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify({origin:payload.origin,destination:payload.destination,packages:payload.packages,shipment:{type:1,carrier}})
-      });
-      const data=await response.json().catch(()=>({}));
-      if(!response.ok) throw new Error((data.message||data.error||('Error HTTP '+response.status))+' ('+carrier+')');
-      return Array.isArray(data.data)?data.data:(Array.isArray(data)?data:[]);
-    }));
-    const rates=results.filter(x=>x.status==='fulfilled').flatMap(x=>x.value).map(rate=>({
-      carrier:rate.carrier||rate.carrierName||'',
+    const normalizeState=(value)=>{
+      const map={'Chihuahua':'CH','Durango':'DG','Coahuila':'CO','Sonora':'SO','Sinaloa':'SI','Nuevo León':'NL','Nuevo Leon':'NL','Jalisco':'JA','Ciudad de México':'CX','CDMX':'CX'};
+      return map[value]||value;
+    };
+    const requestPayload={
+      origin:{...payload.origin,state:normalizeState(payload.origin.state)},
+      destination:{...payload.destination,state:normalizeState(payload.destination.state)},
+      packages:payload.packages,
+      shipment:{type:1}
+    };
+    const response=await fetch('https://api.envia.com/ship/rate/',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(requestPayload)
+    });
+    const raw=await response.text();
+    let body={};
+    try{body=JSON.parse(raw)}catch{return {ok:false,error:'Envia devolvió una respuesta no válida (HTTP '+response.status+').'};}
+    if(!response.ok) return {ok:false,error:body.message||body.error||JSON.stringify(body.errors||body)||('Error HTTP '+response.status)};
+    const list=Array.isArray(body.data)?body.data:(Array.isArray(body.rates)?body.rates:(Array.isArray(body)?body:[]));
+    const rates=list.map(rate=>({
+      carrier:rate.carrier||rate.carrierName||'Transportista',
       service:rate.service||rate.serviceDescription||'Servicio',
-      serviceDescription:rate.serviceDescription||rate.service||'',
+      serviceDescription:rate.serviceDescription||rate.service||'Servicio',
       totalPrice:Number(rate.totalPrice??rate.total??rate.price??0),
       currency:rate.currency||'MXN',
-      deliveryEstimate:rate.deliveryEstimate||rate.deliveryTime||'No especificado'
-    })).filter(x=>Number.isFinite(x.totalPrice)&&x.totalPrice>=0);
-    const errors=results.filter(x=>x.status==='rejected').map(x=>x.reason?.message||'Error de cotización');
-    if(!rates.length&&errors.length) return {ok:false,error:errors.join(' · ')};
-    return {ok:true,rates,errors};
+      deliveryEstimate:rate.deliveryEstimate||rate.deliveryTime||rate.deliveryDays||'No especificado'
+    })).filter(x=>Number.isFinite(x.totalPrice)&&x.totalPrice>0);
+    if(!rates.length) return {ok:true,rates:[],diagnostic:body.message||body.meta||'La API respondió correctamente, pero no devolvió servicios para los datos enviados.',responseKeys:Object.keys(body||{})};
+    return {ok:true,rates};
   }catch(e){return {ok:false,error:e.message||'No se pudo consultar Envia.'};}
 });
 
