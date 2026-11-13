@@ -303,6 +303,8 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
 .settings-inline summary{cursor:pointer;font-weight:750;color:#ff8069;padding:5px}
 .settings-inline[open] summary{margin-bottom:12px}
 @media(max-width:900px){#sideNav{width:78px!important}header{margin-left:78px!important}main.wrap{margin-left:78px!important}}
+
+#quoteWorkspace .grid{grid-template-columns:1.2fr .8fr!important}#qLines .row{align-items:center;gap:8px}#qLines input{max-width:105px}#qSavedQuotes .order{margin-top:9px}@media(max-width:900px){#quoteWorkspace .grid{grid-template-columns:1fr!important}}
 </style></head><body>
 <header><div class="topbar-title"><div class="eyebrow">MAKERFOX STUDIO</div><div class="muted small">Ideas que toman forma</div></div><span class="tag">STUDIO · v2.0.0</span></header>
 <main class="wrap">
@@ -345,6 +347,51 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
 
 <section id="catalog" class="page">
 <div class="card"><h3>Catálogo MakerFox</h3><div class="stats"><div class="stat"><span class="muted small">Productos</span><strong id="total">0</strong></div><div class="stat"><span class="muted small">Precio promedio</span><strong id="average">$0</strong></div><div class="stat"><span class="muted small">Modelos asociados</span><strong id="withModel">0</strong></div></div><div style="margin-top:11px"><input id="search" placeholder="Buscar por nombre o código..."></div><div style="margin-top:8px"><select id="filter"><option value="">Todas las categorías</option></select></div></div><div class="actions catalog-view-tools"><label class="small muted">Vista</label><button data-catalog-view="grid" title="Cuadrícula">▦</button><button data-catalog-view="large" title="Iconos grandes">▣</button><button data-catalog-view="list" title="Lista">☷</button><button data-catalog-view="details" title="Detalles">☰</button><button data-catalog-view="compact" title="Compacta">≡</button></div><div id="products" class="product-grid"></div>
+
+<div class="card" id="quoteWorkspace" style="margin-top:16px">
+ <div class="orderhead"><div><h3>▣ Cotizador de pedidos</h3><p class="notice">Arma pedidos con varios productos del catálogo. El precio regular se selecciona por defecto; puedes ajustarlo por línea.</p></div><button id="quoteNew">Nuevo pedido</button></div>
+ <div class="grid" style="grid-template-columns:1.2fr .8fr">
+  <div class="stack">
+   <div class="card"><h3>Agregar productos</h3><div class="fields">
+    <div><label>Producto del catálogo</label><select id="qProduct"></select></div>
+    <div><label>Cantidad de piezas</label><input id="qQty" type="number" min="1" step="1" value="1"></div>
+    <div><label>Precio por pieza</label><input id="qUnitPrice" type="number" min="0" step=".01"></div>
+    <div><label>Peso unitario (g)</label><input id="qUnitWeight" type="number" min="0" step=".1" readonly></div>
+   </div><div class="actions"><button class="primary" id="qAdd">Agregar al pedido</button></div><p class="notice" id="qProductHint">Selecciona un producto.</p></div>
+   <div class="card"><h3>Productos del pedido</h3><div id="qLines"><div class="empty">Agrega productos del catálogo para comenzar.</div></div></div>
+   <div class="card"><h3>Empaque y dimensiones</h3><div class="fields">
+    <div><label>Empaque guardado</label><select id="qBox"></select></div>
+    <div><label>Peso adicional del empaque (g)</label><input id="qBoxWeight" type="number" min="0" step="1" value="0"></div>
+    <div><label>Largo (cm)</label><input id="qLength" type="number" min="0" step=".1" value="20"></div>
+    <div><label>Ancho (cm)</label><input id="qWidth" type="number" min="0" step=".1" value="15"></div>
+    <div><label>Alto (cm)</label><input id="qHeight" type="number" min="0" step=".1" value="10"></div>
+    <div><label>Divisor volumétrico</label><input id="qVolDivisor" type="number" min="1" step="1" value="5000"></div>
+   </div><div class="actions"><button id="qSaveBox">Guardar estas medidas como caja</button><button id="qDeleteBox">Eliminar caja seleccionada</button></div><p class="notice">El peso de empaque se suma al peso de los productos. El peso volumétrico se calcula con largo × ancho × alto ÷ divisor; confirma el divisor con la paquetería.</p></div>
+  </div>
+  <div class="stack">
+   <div class="card"><h3>Resumen del pedido</h3>
+    <div class="row"><span class="muted">Subtotal de productos</span><b id="qSubtotal">$0.00</b></div>
+    <div class="row"><span class="muted">Peso de productos</span><b id="qProductWeight">0 g</b></div>
+    <div class="row"><span class="muted">Peso con empaque</span><b id="qActualWeight">0 g</b></div>
+    <div class="row"><span class="muted">Peso volumétrico</span><b id="qVolWeight">0 g</b></div>
+    <div class="row"><span class="muted">Peso facturable estimado</span><b id="qBillWeight">0 g</b></div>
+   </div>
+   <div class="card"><h3>Cotizar envío</h3><div class="fields">
+    <div><label>Modalidad de cotización</label><select id="qShipMode"><option value="manual">Costo manual de paquetería</option><option value="tariff">Estimación con tarifa guardada</option></select></div>
+    <div><label>Paquetería / servicio</label><input id="qCarrier" placeholder="Ej. Estafeta, DHL, Paquetexpress"></div>
+    <div><label>Costo base de tarifa ($)</label><input id="qBaseRate" type="number" min="0" step=".01" value="0"></div>
+    <div><label>Costo por kg facturable ($)</label><input id="qPerKgRate" type="number" min="0" step=".01" value="0"></div>
+    <div><label>Costo manual / cotizado ($)</label><input id="qManualShipping" type="number" min="0" step=".01" value="0"></div>
+    <div><label>¿Quién paga el envío?</label><select id="qPayer"><option value="customer">Cliente paga el envío</option><option value="makerfox">MakerFox absorbe el envío</option><option value="split">Compartido</option></select></div>
+    <div><label>Parte que paga MakerFox ($)</label><input id="qMakerShare" type="number" min="0" step=".01" value="0"></div>
+    <div><label>Parte que paga el cliente ($)</label><input id="qCustomerShare" type="number" min="0" step=".01" value="0"></div>
+   </div><p class="notice" id="qShipNote">La tarifa guardada es una estimación local, no una cotización en tiempo real de la paquetería. Para tarifas oficiales se necesitará integrar la API de cada proveedor y sus credenciales.</p></div>
+   <div class="price"><div class="small">TOTAL A COBRAR AL CLIENTE</div><strong id="qGrandTotal">$0.00</strong><div class="notice">Productos + parte del envío a cargo del cliente. MakerFox absorbe: <b id="qMakerCost">$0.00</b></div></div>
+   <div class="actions"><button class="primary" id="qSaveQuote">Guardar cotización</button><button id="qCopyQuote">Copiar resumen</button></div>
+   <div id="qSavedQuotes"></div>
+  </div>
+ </div>
+</div>
 </section>
 <section id="inventory" class="page"><div class="card"><div class="orderhead"><div><h3>Inventario actual</h3><p class="notice">Existencias físicas en piezas. Este inventario es independiente de las cantidades del catálogo.</p></div><button class="primary" id="inventoryAdd">+ Agregar existencia</button></div><div class="stats"><div class="stat"><span class="muted small">Registros</span><strong id="inventoryCount">0</strong></div><div class="stat"><span class="muted small">Piezas disponibles</span><strong id="inventoryUnits">0</strong></div></div><input id="inventorySearch" placeholder="Buscar en inventario..."><div id="inventoryForm" class="card hidden" style="margin-top:12px"><h3 id="inventoryFormTitle">Nuevo registro</h3><div class="fields"><div><label>Origen del producto</label><select id="inventorySource"><option value="manual">Producto manual</option><option value="catalog">Elegir del catálogo</option></select></div><div id="inventoryCatalogWrap" class="hidden"><label>Producto del catálogo</label><select id="inventoryCatalogProduct"></select></div><div id="inventoryNameWrap"><label>Nombre del producto</label><input id="inventoryName" placeholder="Nombre o descripción"></div><div><label>Existencias (piezas)</label><input id="inventoryQty" type="number" min="0" step="1" value="1"></div></div><div class="actions"><button class="primary" id="inventorySave">Guardar</button><button id="inventoryCancel">Cancelar</button></div><div class="notice" id="inventoryMessage"></div></div><div id="inventoryList"></div></div></section>
 <section id="client" class="page"><div class="card"><div class="orderhead"><div><h3>Presentación para clientes</h3><p class="notice">Vista comercial: no muestra costos, márgenes ni datos internos.</p></div><button id="clientPreview">Vista de cliente</button></div><div class="fields"><div><label>Formato de catálogo</label><select id="clientView"><option value="grid">Cuadrícula</option><option value="large">Fotografías grandes</option><option value="list">Lista</option></select></div><div><label>Multiplicador / tarifa</label><select id="quoteMultiplier"><option value="2">Precio ×2</option><option value="2.5" selected>Precio ×2.5</option><option value="3">Precio ×3</option><option value="3.5">Precio ×3.5</option><option value="4">Precio ×4</option><option value="5">Precio ×5</option></select></div></div><input id="clientSearch" placeholder="Buscar productos para cotizar"><div id="clientProducts" class="product-grid"></div></div><div class="card"><h3>Preparar cotización PDF</h3><div class="fields"><div><label>Nombre del cliente (opcional)</label><input id="quoteCustomer" placeholder="Cliente"></div><div><label>Vigencia (opcional)</label><input id="quoteValidity" placeholder="Ej. 7 días"></div><div><label><input id="quoteShipping" type="checkbox" style="width:auto"> Incluir costo de envío</label><input id="quoteShippingCost" type="number" min="0" step=".01" placeholder="Costo de envío ($)" disabled></div><div><label><input id="quoteShippingPending" type="checkbox" style="width:auto" checked> Envío por cotizar</label></div></div><div id="quoteLines" class="notice">Selecciona productos para preparar la cotización.</div><button class="primary" id="generateQuote" style="margin-top:12px">Generar cotización PDF</button><div class="notice" id="quoteMessage"></div></div></section>
@@ -415,11 +462,11 @@ body.nav-collapsed header,body.nav-collapsed main.wrap{margin-left:78px!importan
 <script>
 (()=>{
 const $=id=>document.getElementById(id),money=n=>new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'}).format(Number(n)||0);
-let db,inventory=[],settings={filament:279,filaments:[{id:"default-pla",name:"PLA Basic",price:279,note:"Filamento predeterminado"}],electric:4,watts:95,life:2880,parts:2500,labor:39.38,error:5,feePercent:0,regularMargin:40,wholesaleMargin:25,wholesaleMinQty:10,overheadPerUnit:0},products=[],models=[],orders=[],editingProduct=null,editingOrder=null,calc={},orderLines=[],orderView='active';
+let db,inventory=[],quoteLines=[],quoteBoxes=[],savedQuotes=[],settings={filament:279,filaments:[{id:"default-pla",name:"PLA Basic",price:279,note:"Filamento predeterminado"}],electric:4,watts:95,life:2880,parts:2500,labor:39.38,error:5,feePercent:0,regularMargin:40,wholesaleMargin:25,wholesaleMinQty:10,overheadPerUnit:0},products=[],models=[],orders=[],editingProduct=null,editingOrder=null,calc={},orderLines=[],orderView='active';
 const req=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
-function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open('MakerFoxStudioDB',1);r.onupgradeneeded=()=>{let d=r.result;if(!d.objectStoreNames.contains('products'))d.createObjectStore('products',{keyPath:'id'});if(!d.objectStoreNames.contains('models'))d.createObjectStore('models',{keyPath:'id'});if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'id'});if(!d.objectStoreNames.contains('orders'))d.createObjectStore('orders',{keyPath:'id'});if(!d.objectStoreNames.contains('inventory'))d.createObjectStore('inventory',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
+function openDB(){return new Promise((ok,no)=>{let r=indexedDB.open('MakerFoxStudioDB',2);r.onupgradeneeded=()=>{let d=r.result;if(!d.objectStoreNames.contains('products'))d.createObjectStore('products',{keyPath:'id'});if(!d.objectStoreNames.contains('models'))d.createObjectStore('models',{keyPath:'id'});if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'id'});if(!d.objectStoreNames.contains('orders'))d.createObjectStore('orders',{keyPath:'id'});if(!d.objectStoreNames.contains('inventory'))d.createObjectStore('inventory',{keyPath:'id'});if(!d.objectStoreNames.contains('quotes'))d.createObjectStore('quotes',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)})}
 const all=s=>req(db.transaction(s,'readonly').objectStore(s).getAll()),put=(s,v)=>req(db.transaction(s,'readwrite').objectStore(s).put(v)),del=(s,id)=>req(db.transaction(s,'readwrite').objectStore(s).delete(id));
-function page(name){document.querySelectorAll('nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===name));if(name==='catalog')renderProducts();if(name==='library')renderModels();if(name==='orders')renderOrders();if(name==='backup')backupStats();if(name==='appearance')loadAppearanceControls()}
+function page(name){document.querySelectorAll('nav [data-page]').forEach(b=>b.classList.toggle('active',b.dataset.page===name));document.querySelectorAll('.page').forEach(s=>s.classList.toggle('active',s.id===name));if(name==='catalog'){renderProducts();initQuoteUI();}if(name==='library')renderModels();if(name==='orders')renderOrders();if(name==='backup')backupStats();if(name==='appearance')loadAppearanceControls()}
 const APPEARANCE_KEY='makerfoxStudioAppearance';
 function readAppearance(){try{return {...{theme:'arcade',accent:'red',compact:false},...JSON.parse(localStorage.getItem(APPEARANCE_KEY)||'{}')}}catch{return {theme:'arcade',accent:'red',compact:false}}}
 function applyAppearance(){const a=readAppearance();document.body.dataset.theme=a.theme;document.body.dataset.accent=a.accent;document.body.classList.toggle('nav-collapsed',!!a.compact);const t=document.querySelector('input[name="mfTheme"][value="'+a.theme+'"]');if(t)t.checked=true;const ac=document.querySelector('input[name="mfAccent"][value="'+a.accent+'"]');if(ac)ac.checked=true;const compact=document.getElementById('appearanceCompact');if(compact)compact.checked=!!a.compact}
@@ -468,6 +515,61 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 function download(blob,name){if(!blob)return;let u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1500)}
 async function openInBambu(blob,name){try{if(!window.makerfoxDesktop?.openModel){alert('Esta función requiere MakerFox Desktop actualizado.');return}let r=await window.makerfoxDesktop.openModel(await blob.arrayBuffer(),name||'modelo.3mf');if(!r.ok)alert('No se pudo abrir el archivo. Comprueba Bambu Studio y la asociación del formato.\n'+(r.error||''))}catch(e){alert('Error al abrir el modelo: '+e.message)}}
 function productPriceHTML(p){let qty=Math.max(1,Number(p.batchQty||1)),totalCost=Number(p.totalCost??((p.cost??0)*qty)),chosen=Number(p.customPrice??p.batchPrice??((p.price??0)*qty)),costPrice=Number(p.priceBreakdown?.costRecovery??totalCost),wholesale=Number(p.priceBreakdown?.wholesale??p.wholesale*qty);return `<div class="price"><div class="small">PRECIO REGULAR · LOTE</div><strong>${money(chosen)}</strong><div class="notice">Costo real: <b>${money(totalCost)}</b><br>Precio de costo: <b>${money(costPrice)}</b><br>Precio mayoreo: <b>${money(wholesale)}</b><br>Utilidad estimada regular: <b>${money(chosen-totalCost)}</b></div></div><div class="customrow"><span class="small muted">Precio elegido del lote</span><input type="number" min="0" step=".01" placeholder="MXN" value="${p.customPrice??''}" data-custom-input="${p.id}"><button data-custom-save="${p.id}">Guardar</button></div>`}
+
+function quoteMoney(n){return money(Math.max(0,Number(n)||0))}
+function quoteProduct(){return products.find(p=>p.id===$('qProduct').value)}
+function quoteWeight(p){return Math.max(0,Number(p?.grams??(Number(p?.batchGrams||0)/Math.max(1,Number(p?.batchQty||1))))||0)}
+function quoteRegularPrice(p){let qty=Math.max(1,Number(p?.batchQty||1));return Math.max(0,Number(p?.customPrice??p?.price??p?.priceOptions?.regular??p?.batchPrice/qty??0))||0}
+function initQuoteUI(){
+ if(!$('qProduct'))return;
+ const prev=$('qProduct').value;
+ $('qProduct').innerHTML=products.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.sku||'')+' · '+esc(p.name)+'</option>').join('')||'<option value="">Primero registra productos en el catálogo</option>';
+ if(products.some(p=>p.id===prev))$('qProduct').value=prev;
+ const savedBox=quoteBoxes.find(b=>b.id===$('qBox').value);
+ $('qBox').innerHTML='<option value="">Caja personalizada</option>'+quoteBoxes.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.name)+'</option>').join('');
+ if(savedBox)$('qBox').value=savedBox.id;
+ quoteProductChanged();renderQuoteLines();renderSavedQuotes();calcQuote();
+}
+function quoteProductChanged(){
+ let p=quoteProduct();$('qUnitWeight').value=p?quoteWeight(p).toFixed(1):0;
+ $('qUnitPrice').value=p?quoteRegularPrice(p).toFixed(2):0;
+ $('qProductHint').textContent=p?'Precio regular sugerido: '+quoteMoney(quoteRegularPrice(p))+' por pieza · Peso registrado: '+quoteWeight(p).toFixed(1)+' g. Puedes modificar el precio para este pedido.':'Agrega productos desde la calculadora y vuelve al cotizador.';
+}
+function renderQuoteLines(){
+ const el=$('qLines');if(!el)return;
+ el.innerHTML=quoteLines.length?quoteLines.map((l,i)=>'<div class="row"><div style="flex:1;min-width:0"><b>'+esc(l.name)+'</b><div class="small muted">'+l.qty+' pza(s) × '+quoteMoney(l.unitPrice)+' · '+(l.weight*l.qty).toFixed(1)+' g</div></div><b>'+quoteMoney(l.qty*l.unitPrice)+'</b><button data-qremove="'+i+'">Quitar</button></div>').join(''):'<div class="empty">Agrega productos del catálogo para comenzar.</div>';
+ el.querySelectorAll('[data-qremove]').forEach(b=>b.onclick=()=>{quoteLines.splice(Number(b.dataset.qremove),1);renderQuoteLines();calcQuote()});
+}
+function quoteShippingRaw(actualGrams,volGrams){
+ const bill=Math.max(actualGrams,volGrams),mode=$('qShipMode').value;
+ if(mode==='tariff'){let kg=bill/1000;return Math.max(0,Number($('qBaseRate').value)||0)+kg*Math.max(0,Number($('qPerKgRate').value)||0)}
+ return Math.max(0,Number($('qManualShipping').value)||0);
+}
+function calcQuote(){
+ if(!$('qSubtotal'))return;
+ const subtotal=quoteLines.reduce((a,l)=>a+l.qty*l.unitPrice,0),productG=quoteLines.reduce((a,l)=>a+l.qty*l.weight,0),boxG=Math.max(0,Number($('qBoxWeight').value)||0),actual=productG+boxG;
+ const L=Math.max(0,Number($('qLength').value)||0),W=Math.max(0,Number($('qWidth').value)||0),H=Math.max(0,Number($('qHeight').value)||0),div=Math.max(1,Number($('qVolDivisor').value)||5000),vol=(L*W*H/div)*1000,bill=Math.max(actual,vol);
+ const ship=quoteShippingRaw(actual,vol),payer=$('qPayer').value;let maker=0,customer=ship;
+ if(payer==='makerfox'){maker=ship;customer=0}else if(payer==='split'){maker=Math.min(ship,Math.max(0,Number($('qMakerShare').value)||0));customer=Math.max(0,ship-maker);$('qCustomerShare').value=customer.toFixed(2)}else{$('qMakerShare').value='0';$('qCustomerShare').value=ship.toFixed(2)}
+ $('qSubtotal').textContent=quoteMoney(subtotal);$('qProductWeight').textContent=productG.toFixed(1)+' g';$('qActualWeight').textContent=actual.toFixed(1)+' g';$('qVolWeight').textContent=vol.toFixed(1)+' g';$('qBillWeight').textContent=bill.toFixed(1)+' g';
+ $('qGrandTotal').textContent=quoteMoney(subtotal+customer);$('qMakerCost').textContent=quoteMoney(maker);
+ return {subtotal,productGrams:productG,boxGrams:boxG,actualGrams:actual,volumetricGrams:vol,billableGrams:bill,shipping:ship,makerShare:maker,customerShare:customer,total:subtotal+customer,carrier:$('qCarrier').value,mode:$('qShipMode').value,lines:quoteLines.map(x=>({...x}))};
+}
+async function persistQuoteSettings(){await put('settings',{id:'shippingBoxes',items:quoteBoxes});}
+$('qProduct')?.addEventListener('change',quoteProductChanged);
+$('qQty')?.addEventListener('input',()=>{});
+$('qAdd')?.addEventListener('click',()=>{let p=quoteProduct(),qty=Math.max(1,Math.floor(Number($('qQty').value)||1)),price=Math.max(0,Number($('qUnitPrice').value)||0);if(!p){alert('Primero registra un producto en el catálogo.');return}quoteLines.push({productId:p.id,name:p.name,sku:p.sku,qty,unitPrice:price,weight:quoteWeight(p)});renderQuoteLines();calcQuote();$('qQty').value=1});
+$('qBox')?.addEventListener('change',()=>{let b=quoteBoxes.find(x=>x.id===$('qBox').value);if(b){$('qBoxWeight').value=b.weight;$('qLength').value=b.length;$('qWidth').value=b.width;$('qHeight').value=b.height}});
+$('qSaveBox')?.addEventListener('click',async()=>{let name=prompt('Nombre para esta caja (ej. Caja 20 × 15 × 10 cm):');if(!name?.trim())return;let b={id:crypto.randomUUID(),name:name.trim(),weight:Math.max(0,Number($('qBoxWeight').value)||0),length:Math.max(0,Number($('qLength').value)||0),width:Math.max(0,Number($('qWidth').value)||0),height:Math.max(0,Number($('qHeight').value)||0)};quoteBoxes.push(b);await persistQuoteSettings();initQuoteUI();$('qBox').value=b.id});
+$('qDeleteBox')?.addEventListener('click',async()=>{let id=$('qBox').value;if(!id){alert('Selecciona una caja guardada.');return}quoteBoxes=quoteBoxes.filter(b=>b.id!==id);await persistQuoteSettings();initQuoteUI();$('qBox').value=''});
+$('qPayer')?.addEventListener('change',()=>{let p=$('qPayer').value;$('qMakerShare').disabled=p!=='split';$('qCustomerShare').disabled=true;calcQuote()});
+$('qMakerShare')?.addEventListener('input',calcQuote);
+['qShipMode','qCarrier','qBaseRate','qPerKgRate','qManualShipping','qMakerShare','qPayer','qBoxWeight','qLength','qWidth','qHeight','qVolDivisor'].forEach(id=>$(id)?.addEventListener('input',calcQuote));
+$('qSaveQuote')?.addEventListener('click',async()=>{let q=calcQuote();if(!q.lines.length){alert('Agrega al menos un producto.');return}q.id=crypto.randomUUID();q.created=new Date().toISOString();q.status='cotizacion';savedQuotes.unshift(q);await put('quotes',q);renderSavedQuotes();$('qShipNote').textContent='Cotización guardada localmente en MakerFox Studio.'});
+$('qCopyQuote')?.addEventListener('click',()=>{let q=calcQuote();let lines=q.lines.map(l=>l.qty+' × '+l.name+' = '+quoteMoney(l.qty*l.unitPrice)).join('\n');let t='Cotización MakerFox\n'+lines+'\nProductos: '+quoteMoney(q.subtotal)+'\nPeso facturable estimado: '+q.billableGrams.toFixed(0)+' g\nEnvío: '+quoteMoney(q.shipping)+'\nTotal cliente: '+quoteMoney(q.total);if(navigator.clipboard?.writeText)navigator.clipboard.writeText(t).then(()=>$('qShipNote').textContent='Resumen copiado.').catch(()=>alert(t));else alert(t)});
+$('qNew')?.addEventListener('click',()=>{quoteLines=[];$('qCarrier').value='';$('qManualShipping').value=0;$('qMakerShare').value=0;$('qPayer').value='customer';renderQuoteLines();calcQuote()});
+function renderSavedQuotes(){let el=$('qSavedQuotes');if(!el)return;el.innerHTML=savedQuotes.slice(0,8).map(q=>'<div class="order"><div class="orderhead"><b>Cotización · '+new Date(q.created).toLocaleDateString('es-MX')+'</b><b>'+quoteMoney(q.total)+'</b></div><div class="small muted">'+q.lines.length+' línea(s) · '+Math.round(q.billableGrams)+' g facturables · Envío '+quoteMoney(q.shipping)+'</div></div>').join('')}
+
 function renderProducts(){let q=$('search').value.toLowerCase(),f=$('filter').value,list=products.filter(p=>(!f||p.category===f)&&(!q||(p.name+' '+p.sku).toLowerCase().includes(q)));$('count').textContent=products.length;$('total').textContent=products.length;$('average').textContent=money(products.length?products.reduce((a,p)=>a+(p.customPrice??p.price??0),0)/products.length:0);$('withModel').textContent=products.filter(p=>p.model).length;
  $('products').innerHTML=list.length?list.map(p=>`<div class="product">${p.photo?`<img src="${URL.createObjectURL(p.photo)}">`:'<div class="product-image" aria-label="Producto sin fotografía"><div class="placeholder-mark">MF</div><div class="placeholder-title">MAKERFOX</div><div class="placeholder-caption">SIN FOTOGRAFÍA</div></div>'}<div class="info"><b>${esc(p.name)}</b><div class="small muted">${esc(p.sku)} · ${esc(p.material)} · ${esc(p.color||'Sin color')} · ${Number(p.batchGrams??((p.grams||0)*Math.max(1,Number(p.batchQty||1)))).toFixed(2)} g totales · ${Number(p.batchQty||1)} pzas · ${p.batchTime!=null?Math.floor(p.batchTime)+' h '+Math.round((p.batchTime%1)*60)+' min':'Tiempo no estimado'}</div><div class="small" style="margin-top:5px">Costo unitario: <b>${money(p.cost??p.total??0)}</b></div>${productPriceHTML(p)}<div class="actions"><button data-edit="${p.id}">Editar</button><button data-delete="${p.id}">Eliminar</button>${p.model?`<button data-open="${p.id}">Abrir en Bambu Studio</button><button data-download="${p.id}">Descargar</button>`:''}</div></div></div>`).join(''):'<div class="empty">Aún no tienes productos. Registra el primero desde la calculadora.</div>';
  $('products').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editProduct(b.dataset.edit));$('products').querySelectorAll('[data-delete]').forEach(b=>b.onclick=async()=>{let p=products.find(x=>x.id===b.dataset.delete);if(confirm('¿Eliminar '+p.name+'?')){await del('products',p.id);if(cloudUser){const stamp=new Date().toISOString();const {error}=await cloudClient.from('products').upsert({id:String(p.id),data:{id:p.id,name:p.name,sku:p.sku,updated:stamp,_deleted:true},updated_at:stamp,deleted_at:stamp},{onConflict:'id'});if(error)cloudMsg('Eliminado localmente; falta sincronizar: '+error.message,'Pendiente')}products=await all('products');renderProducts()}});
@@ -707,7 +809,7 @@ $('slicedFile').onchange=async()=>{
  }catch(e){$('slicedStatus').textContent='No se pudo analizar el archivo: '+e.message+' Puedes continuar capturando los datos manualmente.'}
 };
 
-async function init(){try{db=await openDB();products=await all('products');models=await all('models');orders=await all('orders');inventory=await all('inventory');let s=await req(db.transaction('settings','readonly').objectStore('settings').get('base'));if(s)settings={...settings,...s};if(!Array.isArray(settings.filaments)||!settings.filaments.length)settings.filaments=[{id:'default-pla',name:'PLA Basic',price:settings.filament||279,note:'Filamento predeterminado'}];ensureCategories();loadSettings();renderCategoryOptions();renderCategoryList();renderFilamentOptions();$('multiplier').value=settings.multiplier;$('count').textContent=products.length;$('orderCount').textContent=orders.filter(o=>o.status!=='delivered').length;readCost();refreshProductSelect();renderInventory();renderClientProducts();}catch(e){$('message').textContent='No se pudo iniciar la base de datos: '+e.message}}
+async function init(){try{db=await openDB();products=await all('products');models=await all('models');orders=await all('orders');inventory=await all('inventory');savedQuotes=await all('quotes');let boxData=await req(db.transaction('settings','readonly').objectStore('settings').get('shippingBoxes'));quoteBoxes=Array.isArray(boxData?.items)?boxData.items:[];let s=await req(db.transaction('settings','readonly').objectStore('settings').get('base'));if(s)settings={...settings,...s};if(!Array.isArray(settings.filaments)||!settings.filaments.length)settings.filaments=[{id:'default-pla',name:'PLA Basic',price:settings.filament||279,note:'Filamento predeterminado'}];ensureCategories();loadSettings();renderCategoryOptions();renderCategoryList();renderFilamentOptions();$('multiplier').value=settings.multiplier;$('count').textContent=products.length;$('orderCount').textContent=orders.filter(o=>o.status!=='delivered').length;readCost();refreshProductSelect();renderInventory();renderClientProducts();initQuoteUI();}catch(e){$('message').textContent='No se pudo iniciar la base de datos: '+e.message}}
 init();
 })();
 </script></body></html>
