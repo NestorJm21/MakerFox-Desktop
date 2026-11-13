@@ -52,7 +52,7 @@ ipcMain.handle('makerfox:envia-rate', async (_event, payload)=>{
     if(!token) return {ok:false,error:'Primero configura tu token de Envia en Ajustes.'};
     if(!payload||!payload.origin||!payload.destination||!Array.isArray(payload.packages)||!payload.packages.length) return {ok:false,error:'Faltan datos de origen, destino o paquete.'};
     const carriers=['estafeta','paquetexpress'];
-    const results=await Promise.all(carriers.map(async carrier=>{
+    const results=await Promise.allSettled(carriers.map(async carrier=>{
       const response=await fetch('https://api.envia.com/ship/rate/',{
         method:'POST',
         headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json','Accept':'application/json'},
@@ -62,16 +62,17 @@ ipcMain.handle('makerfox:envia-rate', async (_event, payload)=>{
       if(!response.ok) throw new Error((data.message||data.error||('Error HTTP '+response.status))+' ('+carrier+')');
       return Array.isArray(data.data)?data.data:(Array.isArray(data)?data:[]);
     }));
-    const rates=results.flat().map(rate=>({
+    const rates=results.filter(x=>x.status==='fulfilled').flatMap(x=>x.value).map(rate=>({
       carrier:rate.carrier||rate.carrierName||'',
       service:rate.service||rate.serviceDescription||'Servicio',
       serviceDescription:rate.serviceDescription||rate.service||'',
       totalPrice:Number(rate.totalPrice??rate.total??rate.price??0),
       currency:rate.currency||'MXN',
-      deliveryEstimate:rate.deliveryEstimate||rate.deliveryTime||'No especificado',
-      raw:rate
+      deliveryEstimate:rate.deliveryEstimate||rate.deliveryTime||'No especificado'
     })).filter(x=>Number.isFinite(x.totalPrice)&&x.totalPrice>=0);
-    return {ok:true,rates};
+    const errors=results.filter(x=>x.status==='rejected').map(x=>x.reason?.message||'Error de cotización');
+    if(!rates.length&&errors.length) return {ok:false,error:errors.join(' · ')};
+    return {ok:true,rates,errors};
   }catch(e){return {ok:false,error:e.message||'No se pudo consultar Envia.'};}
 });
 
