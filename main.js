@@ -112,19 +112,25 @@ ipcMain.handle('makerfox:drenvio-rate',async(_event,payload)=>{
   if(!payload?.originPostal||!payload?.destinationPostal||!Array.isArray(payload.packages)||!payload.packages.length)return {ok:false,error:'Faltan códigos postales o datos del paquete.'};
   const body={
    type:'National',
-   origin:{country:'MX',postal_code:String(payload.originPostal),city:payload.originCity||undefined},
-   destination:{country:'MX',postal_code:String(payload.destinationPostal),city:payload.destinationCity||undefined},
-   packages:payload.packages.map(p=>({weight:Number(p.weight),height:Number(p.height),width:Number(p.width),length:Number(p.length),volumetric:Number(p.volumetric||0),type:'box',main_weight:Number(p.weight)})),
+   origin:{country:'MX',postalCode:String(payload.originPostal),city:payload.originCity||undefined},
+   destination:{country:'MX',postalCode:String(payload.destinationPostal),city:payload.destinationCity||undefined},
+   packages:payload.packages.map(p=>({weight:Number(p.weight),height:Number(p.height),width:Number(p.width),length:Number(p.length),volumetric:Number(p.volumetric||0),type:'box'})),
    carriers:['jtexpress','quiken'],
    insurance:0
   };
-  const response=await fetch('https://sandbox.api-drenvio.com/v2/shipments/rate',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
-  const raw=await response.text();let data;try{data=JSON.parse(raw)}catch{return {ok:false,error:'DrEnvío Sandbox devolvió una respuesta no válida (HTTP '+response.status+').'};}
+  let response;
+  try{
+   response=await net.fetch('https://sandbox.api-drenvio.com/v2/shipments/rate',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
+  }catch(networkError){
+   const detail=networkError?.cause?.code||networkError?.code||networkError?.message||'Error de red desconocido';
+   return {ok:false,error:'No se pudo conectar con DrEnvío Sandbox ('+detail+'). Revisa conexión, DNS o bloqueo de red.'};
+  }
+  const raw=await response.text();let data;try{data=JSON.parse(raw)}catch{return {ok:false,error:'DrEnvío Sandbox respondió contenido no JSON (HTTP '+response.status+'): '+raw.slice(0,220)};}
   if(!response.ok)return {ok:false,error:data.message||data.error||JSON.stringify(data.errors||data)||('Error HTTP '+response.status)};
   const list=Array.isArray(data)?data:(Array.isArray(data.data)?data.data:(Array.isArray(data.rates)?data.rates:[]));
   const rates=list.map(x=>({carrier:x.carrier||'Transportista',service:x.service||x.service_id||'Servicio',serviceDescription:x.service_id||x.service||'Servicio',totalPrice:Number(x.price??x.totalPrice??0),currency:x.currency||'MXN',deliveryEstimate:x.days||'No especificado',serviceId:x.service_id||'',shippingId:x.ShippingId||x.shipping_id||''})).filter(x=>Number.isFinite(x.totalPrice)&&x.totalPrice>0);
   return {ok:true,rates,diagnostic:rates.length?'':'Sandbox únicamente simula servicios JTExpress y Quiken. No devolvió tarifas para estos datos.'};
- }catch(e){return {ok:false,error:e.message||'No se pudo consultar DrEnvío.'}}
+ }catch(e){return {ok:false,error:'Error interno de DrEnvío: '+(e?.cause?.code||e?.code||e.message||'error desconocido')}}
 });
 
 function createWindow(){
