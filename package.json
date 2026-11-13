@@ -1,7 +1,7 @@
 {
-  "name": "makerfox-desktop",
-  "version": "1.3.0",
-  "description": "MakerFox - Calculadora 3D, importación de laminados, inventario, catálogo y cotizaciones PDF",
+  "name": "makerfox-studio",
+  "version": "2.0.0",
+  "description": "MakerFox Studio - Costeo rentable y catálogo de impresión 3D",
   "main": "main.js",
   "author": "MakerFox",
   "license": "UNLICENSED",
@@ -15,8 +15,8 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "com.makerfox.catalog",
-    "productName": "MakerFox",
+    "appId": "com.makerfox.studio",
+    "productName": "MakerFox Studio",
     "directories": {
       "output": "dist"
     },
