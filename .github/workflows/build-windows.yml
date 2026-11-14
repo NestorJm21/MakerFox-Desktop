@@ -1,4 +1,5 @@
 name: Build MakerFox Studio Windows installer
+# Rebuild after adding editable custom prices and correcting price-panel contrast.
 # Rebuild after flattening catalog collections into image swatches.
 # Test branch build includes the latest catalog and collection fixes.
 
